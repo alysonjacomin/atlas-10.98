@@ -54,7 +54,7 @@ class Towns {
 
 		Town* getTown(const std::string& townName) const {
 			for (const auto& it : townMap) {
-				if (caseInsensitiveEqual(townName, it.second->getName())) {
+				if (boost::iequals(townName, it.second->getName())) {
 					return it.second;
 				}
 			}

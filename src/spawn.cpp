@@ -59,7 +59,7 @@ bool Spawns::loadFromXml(const std::string& filename, bool isCalledByLua) {
 		Spawn& spawn = spawnList.front();
 
 		for (auto childNode : spawnNode.children()) {
-			if (caseInsensitiveEqual(childNode.name(), "monsters")) {
+			if (boost::iequals(childNode.name(), "monsters")) {
 				Position pos(
 					centerPos.x + pugi::cast<uint16_t>(childNode.attribute("x").value()),
 					centerPos.y + pugi::cast<uint16_t>(childNode.attribute("y").value()),
@@ -130,7 +130,7 @@ bool Spawns::loadFromXml(const std::string& filename, bool isCalledByLua) {
 				}
 
 				spawn.addBlock(sb);
-			} else if (caseInsensitiveEqual(childNode.name(), "monster")) {
+			} else if (boost::iequals(childNode.name(), "monster")) {
 				pugi::xml_attribute nameAttribute = childNode.attribute("name");
 				if (!nameAttribute) {
 					continue;
@@ -160,7 +160,7 @@ bool Spawns::loadFromXml(const std::string& filename, bool isCalledByLua) {
 						std::cout << "[Warning - Spawns::loadFromXml] " << nameAttribute.as_string() << ' ' << pos << " spawntime can not be more than " << MAXSPAWN_INTERVAL / 1000 << " seconds." << std::endl;
 					}
 				}
-			} else if (caseInsensitiveEqual(childNode.name(), "npc")) {
+			} else if (boost::iequals(childNode.name(), "npc")) {
 				pugi::xml_attribute nameAttribute = childNode.attribute("name");
 				if (!nameAttribute) {
 					continue;

@@ -49,7 +49,7 @@ LuaScriptInterface& Actions::getScriptInterface() {
 }
 
 Event_ptr Actions::getEvent(const std::string& nodeName) {
-	if (!caseInsensitiveEqual(nodeName, "action")) {
+	if (!boost::iequals(nodeName, "action")) {
 		return nullptr;
 	}
 	return Event_ptr(new Action(&scriptInterface));
@@ -495,7 +495,7 @@ namespace {
 
 bool Action::loadFunction(const pugi::xml_attribute& attr, bool isScripted) {
 	const char* functionName = attr.as_string();
-	if (caseInsensitiveEqual(functionName, "market")) {
+	if (boost::iequals(functionName, "market")) {
 		function = enterMarket;
 	} else {
 		if (!isScripted) {

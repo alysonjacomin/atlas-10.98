@@ -32,7 +32,7 @@ LuaScriptInterface& TalkActions::getScriptInterface() {
 }
 
 Event_ptr TalkActions::getEvent(const std::string& nodeName) {
-	if (!caseInsensitiveEqual(nodeName, "talkaction")) {
+	if (!boost::iequals(nodeName, "talkaction")) {
 		return nullptr;
 	}
 	return Event_ptr(new TalkAction(&scriptInterface));

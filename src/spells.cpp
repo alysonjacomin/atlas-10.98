@@ -108,9 +108,9 @@ LuaScriptInterface& Spells::getScriptInterface() {
 }
 
 Event_ptr Spells::getEvent(const std::string& nodeName) {
-	if (caseInsensitiveEqual(nodeName, "rune")) {
+	if (boost::iequals(nodeName, "rune")) {
 		return Event_ptr(new RuneSpell(&scriptInterface));
-	} else if (caseInsensitiveEqual(nodeName, "instant")) {
+	} else if (boost::iequals(nodeName, "instant")) {
 		return Event_ptr(new InstantSpell(&scriptInterface));
 	}
 	return nullptr;
@@ -189,7 +189,7 @@ RuneSpell* Spells::getRuneSpell(uint32_t id) {
 
 RuneSpell* Spells::getRuneSpellByName(const std::string& name) {
 	for (auto& it : runes) {
-		if (caseInsensitiveEqual(it.second.getName(), name)) {
+		if (boost::iequals(it.second.getName(), name)) {
 			return &it.second;
 		}
 	}
@@ -232,7 +232,7 @@ InstantSpell* Spells::getInstantSpell(const std::string& words) {
 
 InstantSpell* Spells::getInstantSpellByName(const std::string& name) {
 	for (auto& it : instants) {
-		if (caseInsensitiveEqual(it.second.getName(), name)) {
+		if (boost::iequals(it.second.getName(), name)) {
 			return &it.second;
 		}
 	}
@@ -369,7 +369,7 @@ bool Spell::configureSpell(const pugi::xml_node& node) {
 	//static size_t size = sizeof(reservedList) / sizeof(const char*);
 	//for (size_t i = 0; i < size; ++i) {
 	for (const char* reserved : reservedList) {
-		if (caseInsensitiveEqual(reserved, name)) {
+		if (boost::iequals(reserved, name)) {
 			std::cout << "[Error - Spell::configureSpell] Spell is using a reserved name: " << reserved << std::endl;
 			return false;
 		}

@@ -109,7 +109,7 @@ namespace {
 
 		ExperienceStages stages;
 		for (auto stageNode : doc.child("stages").children()) {
-			if (caseInsensitiveEqual(stageNode.name(), "config")) {
+			if (boost::iequals(stageNode.name(), "config")) {
 				if (!stageNode.attribute("enabled").as_bool()) {
 					return {};
 				}

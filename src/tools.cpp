@@ -130,12 +130,6 @@ std::string generateToken(const std::string& key, uint32_t ticks) {
 	return message;
 }
 
-bool caseInsensitiveEqual(std::string_view str1, std::string_view str2) {
-	return str1.size() == str2.size() && std::equal(str1.begin(), str1.end(), str2.begin(), [](char a, char b) {
-		return tolower(a) == tolower(b);
-	});
-}
-
 bool caseInsensitiveStartsWith(std::string_view str, std::string_view prefix) {
 	return str.size() >= prefix.size() && std::equal(prefix.begin(), prefix.end(), str.begin(), [](char a, char b) {
 		return tolower(a) == tolower(b);
