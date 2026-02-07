@@ -40,6 +40,7 @@
 #include <random>
 #include <ranges>
 #include <set>
+#include <simdutf.h>
 #include <sstream>
 #include <string_view>
 #include <string>

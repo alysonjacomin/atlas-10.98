@@ -5,13 +5,13 @@
 		{"name": "libiconv", "platform": "osx"},
 		"boost-asio",
 		"boost-iostreams",
-		"boost-locale",
 		"boost-lockfree",
 		"boost-system",
 		"boost-variant",
 		"fmt",
 		"openssl",
-		"pugixml"
+		"pugixml",
+		"simdutf"
 	],
 
 	"features": {

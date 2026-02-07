@@ -87,8 +87,8 @@ if(APPLE)
 	find_package(Iconv REQUIRED)
 endif()
 
-# LIB Locale
-set(BOOST_REQUIRED_COMPONENTS system iostreams locale)
+# LIB Simdutf
+find_package(simdutf CONFIG REQUIRED)
 
 # LIB Boosts
 set(BOOST_REQUIRED_VERSION 1.71.0)
