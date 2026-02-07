@@ -31,6 +31,18 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	add_compile_options(-Wimplicit-fallthrough -Wmove)
 endif()
 
+option(ASAN "Enable address sanitizer" OFF)
+if (ASAN)
+    if (MSVC)
+        message(WARNING "ASAN is experimental on Windows/MSVC")
+        add_compile_options(/fsanitize=address)
+        add_link_options(/fsanitize=address)
+    else ()
+        add_compile_options(-fsanitize=address)
+        add_link_options(-fsanitize=address)
+    endif ()
+endif ()
+
 
 
 ### INIT Find packages ###
