@@ -1035,8 +1035,8 @@ void ValueCallback::getMinMaxValues(Player* player, CombatDamage& damage) const 
 	switch (type) {
 		case COMBAT_FORMULA_LEVELMAGIC: {
 			//onGetPlayerMinMaxValues(player, level, maglevel)
-			lua_pushnumber(L, player->getLevel());
-			lua_pushnumber(L, player->getMagicLevel());
+			lua::pushNumber(L, player->getLevel());
+			lua::pushNumber(L, player->getMagicLevel());
 			parameters += 2;
 			break;
 		}
@@ -1061,9 +1061,9 @@ void ValueCallback::getMinMaxValues(Player* player, CombatDamage& damage) const 
 				damage.secondary.value = weapon->getElementDamage(player, nullptr, tool);
 			}
 
-			lua_pushnumber(L, player->getWeaponSkill(item ? item : tool));
-			lua_pushnumber(L, attackValue);
-			lua_pushnumber(L, player->getAttackFactor());
+			lua::pushNumber(L, player->getWeaponSkill(item ? item : tool));
+			lua::pushNumber(L, attackValue);
+			lua::pushNumber(L, player->getAttackFactor());
 			parameters += 3;
 			break;
 		}

@@ -925,7 +925,7 @@ bool MoveEvent::executeEquip(Player* player, Item* item, slots_t slot, bool isCh
 	lua::pushUserdata(L, player);
 	lua::setMetatable(L, -1, "Player");
 	lua::pushThing(L, item);
-	lua_pushnumber(L, slot);
+	lua::pushNumber(L, slot);
 	lua::pushBoolean(L, isCheck);
 
 	return scriptInterface->callFunction(4);

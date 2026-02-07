@@ -79,7 +79,7 @@ namespace {
 	}
 
 	void setField(lua_State* L, const char* index, lua_Number value) {
-		lua_pushnumber(L, value);
+		lua::pushNumber(L, value);
 		lua_setfield(L, -2, index);
 	}
 
@@ -130,32 +130,32 @@ namespace {
 		lua_setfield(L, metatable, "__index");
 
 		// className.metatable['h'] = hash
-		lua_pushnumber(L, std::hash<std::string_view>()(className));
+		lua::pushNumber(L, std::hash<std::string_view>()(className));
 		lua_rawseti(L, metatable, 'h');
 
 		// className.metatable['p'] = parents
-		lua_pushnumber(L, parents);
+		lua::pushNumber(L, parents);
 		lua_rawseti(L, metatable, 'p');
 
 		// className.metatable['t'] = type
 		if (className == "Item") {
-			lua_pushnumber(L, LuaData_Item);
+			lua::pushNumber(L, LuaData_Item);
 		} else if (className == "Container") {
-			lua_pushnumber(L, LuaData_Container);
+			lua::pushNumber(L, LuaData_Container);
 		} else if (className == "Teleport") {
-			lua_pushnumber(L, LuaData_Teleport);
+			lua::pushNumber(L, LuaData_Teleport);
 		} else if (className == "Podium") {
-			lua_pushnumber(L, LuaData_Podium);
+			lua::pushNumber(L, LuaData_Podium);
 		} else if (className == "Player") {
-			lua_pushnumber(L, LuaData_Player);
+			lua::pushNumber(L, LuaData_Player);
 		} else if (className == "Monster") {
-			lua_pushnumber(L, LuaData_Monster);
+			lua::pushNumber(L, LuaData_Monster);
 		} else if (className == "Npc") {
-			lua_pushnumber(L, LuaData_Npc);
+			lua::pushNumber(L, LuaData_Npc);
 		} else if (className == "Tile") {
-			lua_pushnumber(L, LuaData_Tile);
+			lua::pushNumber(L, LuaData_Tile);
 		} else {
-			lua_pushnumber(L, LuaData_Unknown);
+			lua::pushNumber(L, LuaData_Unknown);
 		}
 		lua_rawseti(L, metatable, 't');
 
@@ -196,7 +196,7 @@ namespace {
 
 	void registerGlobalVariable(lua_State* L, std::string_view name, lua_Number value) {
 		// _G[name] = value
-		lua_pushnumber(L, value);
+		lua::pushNumber(L, value);
 		lua_setglobal(L, name.data());
 	}
 
@@ -1003,11 +1003,11 @@ void lua::pushBoolean(lua_State* L, bool value)  {
 }
 
 void lua::pushCombatDamage(lua_State* L, const CombatDamage& damage) {
-	lua_pushnumber(L, damage.primary.value);
-	lua_pushnumber(L, damage.primary.type);
-	lua_pushnumber(L, damage.secondary.value);
-	lua_pushnumber(L, damage.secondary.type);
-	lua_pushnumber(L, damage.origin);
+	lua::pushNumber(L, damage.primary.value);
+	lua::pushNumber(L, damage.primary.type);
+	lua::pushNumber(L, damage.secondary.value);
+	lua::pushNumber(L, damage.secondary.type);
+	lua::pushNumber(L, damage.origin);
 }
 
 void lua::pushInstantSpell(lua_State* L, const InstantSpell& spell) {
@@ -3411,7 +3411,7 @@ int LuaScriptInterface::luaDoPlayerAddItem(lua_State* L) {
 		if (--itemCount == 0) {
 			if (newItem->hasParent()) {
 				uint32_t uid = lua::getScriptEnv()->addThing(newItem);
-				lua_pushnumber(L, uid);
+				lua::pushNumber(L, uid);
 				return 1;
 			} else {
 				//stackable item stacked with existing object, newItem will be released
@@ -3434,15 +3434,15 @@ int LuaScriptInterface::luaDebugPrint(lua_State* L) {
 int LuaScriptInterface::luaGetWorldTime(lua_State* L) {
 	//getWorldTime()
 	int16_t time = g_game.getWorldTime();
-	lua_pushnumber(L, time);
+	lua::pushNumber(L, time);
 	return 1;
 }
 
 int LuaScriptInterface::luaGetWorldLight(lua_State* L) {
 	//getWorldLight()
 	LightInfo lightInfo = g_game.getWorldLightInfo();
-	lua_pushnumber(L, lightInfo.level);
-	lua_pushnumber(L, lightInfo.color);
+	lua::pushNumber(L, lightInfo.level);
+	lua::pushNumber(L, lightInfo.color);
 	return 2;
 }
 
@@ -3465,7 +3465,7 @@ int LuaScriptInterface::luaSetWorldLight(lua_State* L) {
 int LuaScriptInterface::luaGetWorldUpTime(lua_State* L) {
 	//getWorldUpTime()
 	uint64_t uptime = (OTSYS_TIME() - ProtocolStatus::start) / 1000;
-	lua_pushnumber(L, uptime);
+	lua::pushNumber(L, uptime);
 	return 1;
 }
 
@@ -3513,7 +3513,7 @@ int LuaScriptInterface::luaCreateCombatArea(lua_State* L) {
 	}
 
 	area->setupArea(vecArea, rowsArea);
-	lua_pushnumber(L, areaId);
+	lua::pushNumber(L, areaId);
 	return 1;
 }
 
@@ -3647,7 +3647,7 @@ int LuaScriptInterface::luaGetDepotId(lua_State* L) {
 		return 1;
 	}
 
-	lua_pushnumber(L, depotLocker->getDepotId());
+	lua::pushNumber(L, depotLocker->getDepotId());
 	return 1;
 }
 
@@ -3762,7 +3762,7 @@ int LuaScriptInterface::luaAddEvent(lua_State* L) {
 	eventDesc.eventId = g_scheduler.addEvent(createSchedulerTask(delay, [=]() { g_luaEnvironment.executeTimerEvent(lastTimerEventId); }));
 
 	g_luaEnvironment.timerEvents.emplace(lastTimerEventId, std::move(eventDesc));
-	lua_pushnumber(L, lastTimerEventId++);
+	lua::pushNumber(L, lastTimerEventId++);
 	return 1;
 }
 
@@ -3799,7 +3799,7 @@ int LuaScriptInterface::luaSaveServer(lua_State* L) {
 }
 
 int LuaScriptInterface::luaCleanMap(lua_State* L) {
-	lua_pushnumber(L, g_game.map.clean());
+	lua::pushNumber(L, g_game.map.clean());
 	return 1;
 }
 
@@ -3905,7 +3905,7 @@ const luaL_Reg LuaScriptInterface::luaBitReg[] = {
 };
 
 int LuaScriptInterface::luaBitNot(lua_State* L) {
-	lua_pushnumber(L, ~lua::getNumber<uint32_t>(L, -1));
+	lua::pushNumber(L, ~lua::getNumber<uint32_t>(L, -1));
 	return 1;
 }
 
@@ -3915,7 +3915,7 @@ int LuaScriptInterface::luaBit##name(lua_State* L) { \
 	uint32_t w = lua::getNumber<uint32_t>(L, -1); \
 	for (int i = 1; i < n; ++i) \
 		w op lua::getNumber<uint32_t>(L, i); \
-	lua_pushnumber(L, w); \
+	lua::pushNumber(L, w); \
 	return 1; \
 }
 
@@ -3926,7 +3926,7 @@ MULTIOP(Xor, ^= )
 #define SHIFTOP(name, op) \
 int LuaScriptInterface::luaBit##name(lua_State* L) { \
 	uint32_t n1 = lua::getNumber<uint32_t>(L, 1), n2 = lua::getNumber<uint32_t>(L, 2); \
-	lua_pushnumber(L, (n1 op n2)); \
+	lua::pushNumber(L, (n1 op n2)); \
 	return 1; \
 }
 
@@ -3947,7 +3947,7 @@ int LuaScriptInterface::luaConfigManagerGetString(lua_State* L) {
 }
 
 int LuaScriptInterface::luaConfigManagerGetNumber(lua_State* L) {
-	lua_pushnumber(L, ConfigManager::getNumber(lua::getNumber<ConfigManager::integer_config_t>(L, -1)));
+	lua::pushNumber(L, ConfigManager::getNumber(lua::getNumber<ConfigManager::integer_config_t>(L, -1)));
 	return 1;
 }
 
@@ -4004,7 +4004,7 @@ int LuaScriptInterface::luaDatabaseAsyncExecute(lua_State* L) {
 
 int LuaScriptInterface::luaDatabaseStoreQuery(lua_State* L) {
 	if (DBResult_ptr res = Database::getInstance().storeQuery(lua::getString(L, -1))) {
-		lua_pushnumber(L, addResult(res));
+		lua::pushNumber(L, addResult(res));
 	} else {
 		lua::pushBoolean(L, false);
 	}
@@ -4029,7 +4029,7 @@ int LuaScriptInterface::luaDatabaseAsyncStoreQuery(lua_State* L) {
 
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 			if (result) {
-				lua_pushnumber(L, addResult(result));
+				lua::pushNumber(L, addResult(result));
 			} else {
 				lua::pushBoolean(L, false);
 			}
@@ -4056,7 +4056,7 @@ int LuaScriptInterface::luaDatabaseEscapeBlob(lua_State* L) {
 }
 
 int LuaScriptInterface::luaDatabaseLastInsertId(lua_State* L) {
-	lua_pushnumber(L, Database::getInstance().getLastInsertId());
+	lua::pushNumber(L, Database::getInstance().getLastInsertId());
 	return 1;
 }
 
@@ -4082,7 +4082,7 @@ int LuaScriptInterface::luaResultGetNumber(lua_State* L) {
 	}
 
 	const std::string& s = lua::getString(L, 2);
-	lua_pushnumber(L, res->getNumber<int64_t>(s));
+	lua::pushNumber(L, res->getNumber<int64_t>(s));
 	return 1;
 }
 
@@ -4107,7 +4107,7 @@ int LuaScriptInterface::luaResultGetStream(lua_State* L) {
 
 	auto stream = res->getString(lua::getString(L, 2));
 	lua_pushlstring(L, stream.data(), stream.size());
-	lua_pushnumber(L, stream.size());
+	lua::pushNumber(L, stream.size());
 	return 2;
 }
 
@@ -4169,7 +4169,7 @@ int LuaScriptInterface::luaRawGetMetatable(lua_State* L) {
 // os
 int LuaScriptInterface::luaSystemTime(lua_State* L) {
 	// os.mtime()
-	lua_pushnumber(L, OTSYS_TIME());
+	lua::pushNumber(L, OTSYS_TIME());
 	return 1;
 }
 
@@ -4191,7 +4191,7 @@ int LuaScriptInterface::luaTablePack(lua_State* L) {
 	if (luaL_callmeta(L, -1, "__index") != 0) {
 		lua_replace(L, -2);
 	}
-	lua_pushinteger(L, n);
+	lua::pushNumber(L, n);
 	lua_setfield(L, 1, "n"); /* t.n = number of elements */
 	return 1; /* return table */
 }
@@ -4359,7 +4359,7 @@ int LuaScriptInterface::luaGameGetMonsters(lua_State* L) {
 int LuaScriptInterface::luaGameGetExperienceStage(lua_State* L) {
 	// Game.getExperienceStage(level)
 	uint32_t level = lua::getNumber<uint32_t>(L, 1);
-	lua_pushnumber(L, ConfigManager::getExperienceStage(level));
+	lua::pushNumber(L, ConfigManager::getExperienceStage(level));
 	return 1;
 }
 
@@ -4367,28 +4367,28 @@ int LuaScriptInterface::luaGameGetExperienceForLevel(lua_State* L) {
 	// Game.getExperienceForLevel(level)
 	const uint32_t level = lua::getNumber<uint32_t>(L, 1);
 	if (level == 0) {
-		lua_pushnumber(L, 0);
+		lua::pushNumber(L, 0);
 	} else {
-		lua_pushnumber(L, Player::getExpForLevel(level));
+		lua::pushNumber(L, Player::getExpForLevel(level));
 	}
 	return 1;
 }
 
 int LuaScriptInterface::luaGameGetMonsterCount(lua_State* L) {
 	// Game.getMonsterCount()
-	lua_pushnumber(L, g_game.getMonstersOnline());
+	lua::pushNumber(L, g_game.getMonstersOnline());
 	return 1;
 }
 
 int LuaScriptInterface::luaGameGetPlayerCount(lua_State* L) {
 	// Game.getPlayerCount()
-	lua_pushnumber(L, g_game.getPlayersOnline());
+	lua::pushNumber(L, g_game.getPlayersOnline());
 	return 1;
 }
 
 int LuaScriptInterface::luaGameGetNpcCount(lua_State* L) {
 	// Game.getNpcCount()
-	lua_pushnumber(L, g_game.getNpcsOnline());
+	lua::pushNumber(L, g_game.getNpcsOnline());
 	return 1;
 }
 
@@ -4533,7 +4533,7 @@ int LuaScriptInterface::luaGameGetInstantSpells(lua_State* L) {
 
 int LuaScriptInterface::luaGameGetGameState(lua_State* L) {
 	// Game.getGameState()
-	lua_pushnumber(L, g_game.getGameState());
+	lua::pushNumber(L, g_game.getGameState());
 	return 1;
 }
 
@@ -4547,7 +4547,7 @@ int LuaScriptInterface::luaGameSetGameState(lua_State* L) {
 
 int LuaScriptInterface::luaGameGetWorldType(lua_State* L) {
 	// Game.getWorldType()
-	lua_pushnumber(L, g_game.getWorldType());
+	lua::pushNumber(L, g_game.getWorldType());
 	return 1;
 }
 
@@ -4568,7 +4568,7 @@ int LuaScriptInterface::luaGameGetReturnMessage(lua_State* L) {
 
 int LuaScriptInterface::luaGameGetItemAttributeByName(lua_State* L) {
 	// Game.getItemAttributeByName(name)
-	lua_pushnumber(L, stringToItemAttribute(lua::getString(L, 1)));
+	lua::pushNumber(L, stringToItemAttribute(lua::getString(L, 1)));
 	return 1;
 }
 
@@ -4814,7 +4814,7 @@ int LuaScriptInterface::luaGameGetAccountStorageValue(lua_State* L) {
 	uint32_t accountId = lua::getNumber<uint32_t>(L, 1);
 	uint32_t key = lua::getNumber<uint32_t>(L, 2);
 
-	lua_pushnumber(L, g_game.getAccountStorageValue(accountId, key));
+	lua::pushNumber(L, g_game.getAccountStorageValue(accountId, key));
 
 	return 1;
 }
@@ -4862,9 +4862,9 @@ int LuaScriptInterface::luaVariantGetNumber(lua_State* L) {
 	// Variant:getNumber()
 	const LuaVariant& variant = getVariant(L, 1);
 	if (variant.isNumber()) {
-		lua_pushnumber(L, variant.getNumber());
+		lua::pushNumber(L, variant.getNumber());
 	} else {
-		lua_pushnumber(L, 0);
+		lua::pushNumber(L, 0);
 	}
 	return 1;
 }
@@ -4961,7 +4961,7 @@ int LuaScriptInterface::luaPositionGetDistance(lua_State* L) {
 	// position:getDistance(positionEx)
 	const Position& positionEx = lua::getPosition(L, 2);
 	const Position& position = lua::getPosition(L, 1);
-	lua_pushnumber(L, std::max<int32_t>(
+	lua::pushNumber(L, std::max<int32_t>(
 		std::max<int32_t>(
 			std::abs(position.getDistanceX(positionEx)),
 			std::abs(position.getDistanceY(positionEx))
@@ -5125,7 +5125,7 @@ int LuaScriptInterface::luaTileGetThingCount(lua_State* L) {
 	// tile:getThingCount()
 	Tile* tile = lua::getUserdata<Tile>(L, 1);
 	if (tile) {
-		lua_pushnumber(L, tile->getThingCount());
+		lua::pushNumber(L, tile->getThingCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -5349,7 +5349,7 @@ int LuaScriptInterface::luaTileGetItemCountById(lua_State* L) {
 		}
 	}
 
-	lua_pushnumber(L, tile->getItemTypeCount(itemId, subType));
+	lua::pushNumber(L, tile->getItemTypeCount(itemId, subType));
 	return 1;
 }
 
@@ -5472,7 +5472,7 @@ int LuaScriptInterface::luaTileGetItemCount(lua_State* L) {
 		return 1;
 	}
 
-	lua_pushnumber(L, tile->getItemCount());
+	lua::pushNumber(L, tile->getItemCount());
 	return 1;
 }
 
@@ -5480,7 +5480,7 @@ int LuaScriptInterface::luaTileGetDownItemCount(lua_State* L) {
 	// tile:getDownItemCount()
 	Tile* tile = lua::getUserdata<Tile>(L, 1);
 	if (tile) {
-		lua_pushnumber(L, tile->getDownItemCount());
+		lua::pushNumber(L, tile->getDownItemCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -5495,7 +5495,7 @@ int LuaScriptInterface::luaTileGetTopItemCount(lua_State* L) {
 		return 1;
 	}
 
-	lua_pushnumber(L, tile->getTopItemCount());
+	lua::pushNumber(L, tile->getTopItemCount());
 	return 1;
 }
 
@@ -5532,7 +5532,7 @@ int LuaScriptInterface::luaTileGetCreatureCount(lua_State* L) {
 		return 1;
 	}
 
-	lua_pushnumber(L, tile->getCreatureCount());
+	lua::pushNumber(L, tile->getCreatureCount());
 	return 1;
 }
 
@@ -5570,7 +5570,7 @@ int LuaScriptInterface::luaTileGetThingIndex(lua_State* L) {
 
 	Thing* thing = lua::getThing(L, 2);
 	if (thing) {
-		lua_pushnumber(L, tile->getThingIndex(thing));
+		lua::pushNumber(L, tile->getThingIndex(thing));
 	} else {
 		lua_pushnil(L);
 	}
@@ -5600,7 +5600,7 @@ int LuaScriptInterface::luaTileQueryAdd(lua_State* L) {
 	Thing* thing = lua::getThing(L, 2);
 	if (thing) {
 		uint32_t flags = lua::getNumber<uint32_t>(L, 3, 0);
-		lua_pushnumber(L, tile->queryAdd(0, *thing, 1, flags));
+		lua::pushNumber(L, tile->queryAdd(0, *thing, 1, flags));
 	} else {
 		lua_pushnil(L);
 	}
@@ -5676,7 +5676,7 @@ int LuaScriptInterface::luaTileAddItem(lua_State* L) {
 		}
 
 		if (hasTable) {
-			lua_pushnumber(L, i);
+			lua::pushNumber(L, i);
 			lua::pushUserdata(L, item);
 			lua::setItemMetatable(L, -1, item);
 			lua_settable(L, -3);
@@ -5713,7 +5713,7 @@ int LuaScriptInterface::luaTileAddItemEx(lua_State* L) {
 	if (ret == RETURNVALUE_NOERROR) {
 		lua::removeTempItem(item);
 	}
-	lua_pushnumber(L, ret);
+	lua::pushNumber(L, ret);
 	return 1;
 }
 
@@ -5755,7 +5755,7 @@ int LuaScriptInterface::luaNetworkMessageGetByte(lua_State* L) {
 	// networkMessage:getByte()
 	NetworkMessage* message = lua::getUserdata<NetworkMessage>(L, 1);
 	if (message) {
-		lua_pushnumber(L, message->getByte());
+		lua::pushNumber(L, message->getByte());
 	} else {
 		lua_pushnil(L);
 	}
@@ -5766,7 +5766,7 @@ int LuaScriptInterface::luaNetworkMessageGetU16(lua_State* L) {
 	// networkMessage:getU16()
 	NetworkMessage* message = lua::getUserdata<NetworkMessage>(L, 1);
 	if (message) {
-		lua_pushnumber(L, message->get<uint16_t>());
+		lua::pushNumber(L, message->get<uint16_t>());
 	} else {
 		lua_pushnil(L);
 	}
@@ -5777,7 +5777,7 @@ int LuaScriptInterface::luaNetworkMessageGetU32(lua_State* L) {
 	// networkMessage:getU32()
 	NetworkMessage* message = lua::getUserdata<NetworkMessage>(L, 1);
 	if (message) {
-		lua_pushnumber(L, message->get<uint32_t>());
+		lua::pushNumber(L, message->get<uint32_t>());
 	} else {
 		lua_pushnil(L);
 	}
@@ -5788,7 +5788,7 @@ int LuaScriptInterface::luaNetworkMessageGetU64(lua_State* L) {
 	// networkMessage:getU64()
 	NetworkMessage* message = lua::getUserdata<NetworkMessage>(L, 1);
 	if (message) {
-		lua_pushnumber(L, message->get<uint64_t>());
+		lua::pushNumber(L, message->get<uint64_t>());
 	} else {
 		lua_pushnil(L);
 	}
@@ -5978,7 +5978,7 @@ int LuaScriptInterface::luaNetworkMessageTell(lua_State* L) {
 	// networkMessage:tell()
 	NetworkMessage* message = lua::getUserdata<NetworkMessage>(L, 1);
 	if (message) {
-		lua_pushnumber(L, message->getBufferPosition() - message->INITIAL_BUFFER_POSITION);
+		lua::pushNumber(L, message->getBufferPosition() - message->INITIAL_BUFFER_POSITION);
 	} else {
 		lua_pushnil(L);
 	}
@@ -5989,7 +5989,7 @@ int LuaScriptInterface::luaNetworkMessageLength(lua_State* L) {
 	// networkMessage:len()
 	NetworkMessage* message = lua::getUserdata<NetworkMessage>(L, 1);
 	if (message) {
-		lua_pushnumber(L, message->getLength());
+		lua::pushNumber(L, message->getLength());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6053,7 +6053,7 @@ int LuaScriptInterface::luaModalWindowGetId(lua_State* L) {
 	// modalWindow:getId()
 	ModalWindow* window = lua::getUserdata<ModalWindow>(L, 1);
 	if (window) {
-		lua_pushnumber(L, window->id);
+		lua::pushNumber(L, window->id);
 	} else {
 		lua_pushnil(L);
 	}
@@ -6112,7 +6112,7 @@ int LuaScriptInterface::luaModalWindowGetButtonCount(lua_State* L) {
 	// modalWindow:getButtonCount()
 	ModalWindow* window = lua::getUserdata<ModalWindow>(L, 1);
 	if (window) {
-		lua_pushnumber(L, window->buttons.size());
+		lua::pushNumber(L, window->buttons.size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6123,7 +6123,7 @@ int LuaScriptInterface::luaModalWindowGetChoiceCount(lua_State* L) {
 	// modalWindow:getChoiceCount()
 	ModalWindow* window = lua::getUserdata<ModalWindow>(L, 1);
 	if (window) {
-		lua_pushnumber(L, window->choices.size());
+		lua::pushNumber(L, window->choices.size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6162,7 +6162,7 @@ int LuaScriptInterface::luaModalWindowGetDefaultEnterButton(lua_State* L) {
 	// modalWindow:getDefaultEnterButton()
 	ModalWindow* window = lua::getUserdata<ModalWindow>(L, 1);
 	if (window) {
-		lua_pushnumber(L, window->defaultEnterButton);
+		lua::pushNumber(L, window->defaultEnterButton);
 	} else {
 		lua_pushnil(L);
 	}
@@ -6185,7 +6185,7 @@ int LuaScriptInterface::luaModalWindowGetDefaultEscapeButton(lua_State* L) {
 	// modalWindow:getDefaultEscapeButton()
 	ModalWindow* window = lua::getUserdata<ModalWindow>(L, 1);
 	if (window) {
-		lua_pushnumber(L, window->defaultEscapeButton);
+		lua::pushNumber(L, window->defaultEscapeButton);
 	} else {
 		lua_pushnil(L);
 	}
@@ -6320,7 +6320,7 @@ int LuaScriptInterface::luaItemGetId(lua_State* L) {
 	// item:getId()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getID());
+		lua::pushNumber(L, item->getID());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6414,7 +6414,7 @@ int LuaScriptInterface::luaItemGetUniqueId(lua_State* L) {
 		if (uniqueId == 0) {
 			uniqueId = lua::getScriptEnv()->addThing(item);
 		}
-		lua_pushnumber(L, uniqueId);
+		lua::pushNumber(L, uniqueId);
 	} else {
 		lua_pushnil(L);
 	}
@@ -6425,7 +6425,7 @@ int LuaScriptInterface::luaItemGetActionId(lua_State* L) {
 	// item:getActionId()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getActionId());
+		lua::pushNumber(L, item->getActionId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6449,7 +6449,7 @@ int LuaScriptInterface::luaItemGetCount(lua_State* L) {
 	// item:getCount()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getItemCount());
+		lua::pushNumber(L, item->getItemCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6460,7 +6460,7 @@ int LuaScriptInterface::luaItemGetCharges(lua_State* L) {
 	// item:getCharges()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getCharges());
+		lua::pushNumber(L, item->getCharges());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6471,7 +6471,7 @@ int LuaScriptInterface::luaItemGetFluidType(lua_State* L) {
 	// item:getFluidType()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getFluidType());
+		lua::pushNumber(L, item->getFluidType());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6482,7 +6482,7 @@ int LuaScriptInterface::luaItemGetWeight(lua_State* L) {
 	// item:getWeight()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getWeight());
+		lua::pushNumber(L, item->getWeight());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6493,7 +6493,7 @@ int LuaScriptInterface::luaItemGetWorth(lua_State* L) {
 	// item:getWorth()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getWorth());
+		lua::pushNumber(L, item->getWorth());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6504,7 +6504,7 @@ int LuaScriptInterface::luaItemGetSubType(lua_State* L) {
 	// item:getSubType()
 	Item* item = lua::getUserdata<Item>(L, 1);
 	if (item) {
-		lua_pushnumber(L, item->getSubType());
+		lua::pushNumber(L, item->getSubType());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6612,7 +6612,7 @@ int LuaScriptInterface::luaItemGetAttribute(lua_State* L) {
 	}
 
 	if (ItemAttributes::isIntAttrType(attribute)) {
-		lua_pushnumber(L, item->getIntAttr(attribute));
+		lua::pushNumber(L, item->getIntAttr(attribute));
 	} else if (ItemAttributes::isStrAttrType(attribute)) {
 		lua::pushString(L, item->getStrAttr(attribute));
 	} else {
@@ -6983,7 +6983,7 @@ int LuaScriptInterface::luaContainerGetSize(lua_State* L) {
 	// container:getSize()
 	Container* container = lua::getUserdata<Container>(L, 1);
 	if (container) {
-		lua_pushnumber(L, container->size());
+		lua::pushNumber(L, container->size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -6994,7 +6994,7 @@ int LuaScriptInterface::luaContainerGetCapacity(lua_State* L) {
 	// container:getCapacity()
 	Container* container = lua::getUserdata<Container>(L, 1);
 	if (container) {
-		lua_pushnumber(L, container->capacity());
+		lua::pushNumber(L, container->capacity());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7018,7 +7018,7 @@ int LuaScriptInterface::luaContainerGetEmptySlots(lua_State* L) {
 			}
 		}
 	}
-	lua_pushnumber(L, slots);
+	lua::pushNumber(L, slots);
 	return 1;
 }
 
@@ -7026,7 +7026,7 @@ int LuaScriptInterface::luaContainerGetItemHoldingCount(lua_State* L) {
 	// container:getItemHoldingCount()
 	Container* container = lua::getUserdata<Container>(L, 1);
 	if (container) {
-		lua_pushnumber(L, container->getItemHoldingCount());
+		lua::pushNumber(L, container->getItemHoldingCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7134,7 +7134,7 @@ int LuaScriptInterface::luaContainerAddItem(lua_State* L) {
 		}
 
 		if (hasTable) {
-			lua_pushnumber(L, i);
+			lua::pushNumber(L, i);
 			lua::pushUserdata(L, item);
 			lua::setItemMetatable(L, -1, item);
 			lua_settable(L, -3);
@@ -7172,7 +7172,7 @@ int LuaScriptInterface::luaContainerAddItemEx(lua_State* L) {
 	if (ret == RETURNVALUE_NOERROR) {
 		lua::removeTempItem(item);
 	}
-	lua_pushnumber(L, ret);
+	lua::pushNumber(L, ret);
 	return 1;
 }
 
@@ -7180,7 +7180,7 @@ int LuaScriptInterface::luaContainerGetCorpseOwner(lua_State* L) {
 	// container:getCorpseOwner()
 	Container* container = lua::getUserdata<Container>(L, 1);
 	if (container) {
-		lua_pushnumber(L, container->getCorpseOwner());
+		lua::pushNumber(L, container->getCorpseOwner());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7207,7 +7207,7 @@ int LuaScriptInterface::luaContainerGetItemCountById(lua_State* L) {
 	}
 
 	int32_t subType = lua::getNumber<int32_t>(L, 3, -1);
-	lua_pushnumber(L, container->getItemTypeCount(itemId, subType));
+	lua::pushNumber(L, container->getItemTypeCount(itemId, subType));
 	return 1;
 }
 
@@ -7497,7 +7497,7 @@ int LuaScriptInterface::luaCreatureGetId(lua_State* L) {
 	// creature:getId()
 	const Creature* creature = lua::getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getID());
+		lua::pushNumber(L, creature->getID());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7631,8 +7631,8 @@ int LuaScriptInterface::luaCreatureGetLight(lua_State* L) {
 	}
 
 	LightInfo lightInfo = creature->getCreatureLight();
-	lua_pushnumber(L, lightInfo.level);
-	lua_pushnumber(L, lightInfo.color);
+	lua::pushNumber(L, lightInfo.level);
+	lua::pushNumber(L, lightInfo.color);
 	return 2;
 }
 
@@ -7657,7 +7657,7 @@ int LuaScriptInterface::luaCreatureGetSpeed(lua_State* L) {
 	// creature:getSpeed()
 	const Creature* creature = lua::getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getSpeed());
+		lua::pushNumber(L, creature->getSpeed());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7668,7 +7668,7 @@ int LuaScriptInterface::luaCreatureGetBaseSpeed(lua_State* L) {
 	// creature:getBaseSpeed()
 	const Creature* creature = lua::getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getBaseSpeed());
+		lua::pushNumber(L, creature->getBaseSpeed());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7747,7 +7747,7 @@ int LuaScriptInterface::luaCreatureGetDirection(lua_State* L) {
 	// creature:getDirection()
 	const Creature* creature = lua::getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getDirection());
+		lua::pushNumber(L, creature->getDirection());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7769,7 +7769,7 @@ int LuaScriptInterface::luaCreatureGetHealth(lua_State* L) {
 	// creature:getHealth()
 	const Creature* creature = lua::getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getHealth());
+		lua::pushNumber(L, creature->getHealth());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7818,7 +7818,7 @@ int LuaScriptInterface::luaCreatureGetMaxHealth(lua_State* L) {
 	// creature:getMaxHealth()
 	const Creature* creature = lua::getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getMaxHealth());
+		lua::pushNumber(L, creature->getMaxHealth());
 	} else {
 		lua_pushnil(L);
 	}
@@ -7874,7 +7874,7 @@ int LuaScriptInterface::luaCreatureGetSkull(lua_State* L) {
 	// creature:getSkull()
 	Creature* creature = lua::getUserdata<Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getSkull());
+		lua::pushNumber(L, creature->getSkull());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8198,7 +8198,7 @@ int LuaScriptInterface::luaCreatureGetPathTo(lua_State* L) {
 
 		int index = 0;
 		for (auto it = dirList.rbegin(); it != dirList.rend(); ++it) {
-			lua_pushnumber(L, *it);
+			lua::pushNumber(L, *it);
 			lua_rawseti(L, -2, ++index);
 		}
 	} else {
@@ -8222,14 +8222,14 @@ int LuaScriptInterface::luaCreatureMove(lua_State* L) {
 			lua_pushnil(L);
 			return 1;
 		}
-		lua_pushnumber(L, g_game.internalMoveCreature(creature, direction, FLAG_NOLIMIT));
+		lua::pushNumber(L, g_game.internalMoveCreature(creature, direction, FLAG_NOLIMIT));
 	} else {
 		Tile* tile = lua::getUserdata<Tile>(L, 2);
 		if (!tile) {
 			lua_pushnil(L);
 			return 1;
 		}
-		lua_pushnumber(L, g_game.internalMoveCreature(*creature, *tile, lua::getNumber<uint32_t>(L, 3)));
+		lua::pushNumber(L, g_game.internalMoveCreature(*creature, *tile, lua::getNumber<uint32_t>(L, 3)));
 	}
 	return 1;
 }
@@ -8238,7 +8238,7 @@ int LuaScriptInterface::luaCreatureGetZone(lua_State* L) {
 	// creature:getZone()
 	Creature* creature = lua::getUserdata<Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getZone());
+		lua::pushNumber(L, creature->getZone());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8255,7 +8255,7 @@ int LuaScriptInterface::luaCreatureGetStorageValue(lua_State* L) {
 
 	uint32_t key = lua::getNumber<uint32_t>(L, 2);
 	if (auto storage = creature->getStorageValue(key)) {
-		lua_pushnumber(L, storage.value());
+		lua::pushNumber(L, storage.value());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8298,7 +8298,7 @@ int LuaScriptInterface::luaPlayerCreate(lua_State* L) {
 		ReturnValue ret = g_game.getPlayerByNameWildcard(lua::getString(L, 2), player);
 		if (ret != RETURNVALUE_NOERROR) {
 			lua_pushnil(L);
-			lua_pushnumber(L, ret);
+			lua::pushNumber(L, ret);
 			return 2;
 		}
 	} else if (lua_isuserdata(L, 2)) {
@@ -8330,7 +8330,7 @@ int LuaScriptInterface::luaPlayerGetGuid(lua_State* L) {
 	// player:getGuid()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getGUID());
+		lua::pushNumber(L, player->getGUID());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8352,7 +8352,7 @@ int LuaScriptInterface::luaPlayerGetAccountId(lua_State* L) {
 	// player:getAccountId()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getAccount());
+		lua::pushNumber(L, player->getAccount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8363,7 +8363,7 @@ int LuaScriptInterface::luaPlayerGetLastLoginSaved(lua_State* L) {
 	// player:getLastLoginSaved()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getLastLoginSaved());
+		lua::pushNumber(L, player->getLastLoginSaved());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8374,7 +8374,7 @@ int LuaScriptInterface::luaPlayerGetLastLogout(lua_State* L) {
 	// player:getLastLogout()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getLastLogout());
+		lua::pushNumber(L, player->getLastLogout());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8385,7 +8385,7 @@ int LuaScriptInterface::luaPlayerGetAccountType(lua_State* L) {
 	// player:getAccountType()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getAccountType());
+		lua::pushNumber(L, player->getAccountType());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8409,7 +8409,7 @@ int LuaScriptInterface::luaPlayerGetCapacity(lua_State* L) {
 	// player:getCapacity()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getCapacity());
+		lua::pushNumber(L, player->getCapacity());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8433,7 +8433,7 @@ int LuaScriptInterface::luaPlayerGetFreeCapacity(lua_State* L) {
 	// player:getFreeCapacity()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getFreeCapacity());
+		lua::pushNumber(L, player->getFreeCapacity());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8483,7 +8483,7 @@ int LuaScriptInterface::luaPlayerGetSkullTime(lua_State* L) {
 	// player:getSkullTime()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getSkullTicks());
+		lua::pushNumber(L, player->getSkullTicks());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8506,7 +8506,7 @@ int LuaScriptInterface::luaPlayerGetDeathPenalty(lua_State* L) {
 	// player:getDeathPenalty()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getLostPercent() * 100);
+		lua::pushNumber(L, player->getLostPercent() * 100);
 	} else {
 		lua_pushnil(L);
 	}
@@ -8517,7 +8517,7 @@ int LuaScriptInterface::luaPlayerGetExperience(lua_State* L) {
 	// player:getExperience()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getExperience());
+		lua::pushNumber(L, player->getExperience());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8556,7 +8556,7 @@ int LuaScriptInterface::luaPlayerGetLevel(lua_State* L) {
 	// player:getLevel()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getLevel());
+		lua::pushNumber(L, player->getLevel());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8567,7 +8567,7 @@ int LuaScriptInterface::luaPlayerGetMagicLevel(lua_State* L) {
 	// player:getMagicLevel()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getMagicLevel());
+		lua::pushNumber(L, player->getMagicLevel());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8578,7 +8578,7 @@ int LuaScriptInterface::luaPlayerGetBaseMagicLevel(lua_State* L) {
 	// player:getBaseMagicLevel()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getBaseMagicLevel());
+		lua::pushNumber(L, player->getBaseMagicLevel());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8589,7 +8589,7 @@ int LuaScriptInterface::luaPlayerGetMana(lua_State* L) {
 	// player:getMana()
 	const Player* player = lua::getUserdata<const Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getMana());
+		lua::pushNumber(L, player->getMana());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8622,7 +8622,7 @@ int LuaScriptInterface::luaPlayerGetMaxMana(lua_State* L) {
 	// player:getMaxMana()
 	const Player* player = lua::getUserdata<const Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getMaxMana());
+		lua::pushNumber(L, player->getMaxMana());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8647,7 +8647,7 @@ int LuaScriptInterface::luaPlayerGetManaSpent(lua_State* L) {
 	// player:getManaSpent()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getSpentMana());
+		lua::pushNumber(L, player->getSpentMana());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8682,7 +8682,7 @@ int LuaScriptInterface::luaPlayerGetBaseMaxHealth(lua_State* L) {
 	// player:getBaseMaxHealth()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->healthMax);
+		lua::pushNumber(L, player->healthMax);
 	} else {
 		lua_pushnil(L);
 	}
@@ -8693,7 +8693,7 @@ int LuaScriptInterface::luaPlayerGetBaseMaxMana(lua_State* L) {
 	// player:getBaseMaxMana()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->manaMax);
+		lua::pushNumber(L, player->manaMax);
 	} else {
 		lua_pushnil(L);
 	}
@@ -8705,7 +8705,7 @@ int LuaScriptInterface::luaPlayerGetSkillLevel(lua_State* L) {
 	skills_t skillType = lua::getNumber<skills_t>(L, 2);
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && skillType <= SKILL_LAST) {
-		lua_pushnumber(L, player->skills[skillType].level);
+		lua::pushNumber(L, player->skills[skillType].level);
 	} else {
 		lua_pushnil(L);
 	}
@@ -8717,7 +8717,7 @@ int LuaScriptInterface::luaPlayerGetEffectiveSkillLevel(lua_State* L) {
 	skills_t skillType = lua::getNumber<skills_t>(L, 2);
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && skillType <= SKILL_LAST) {
-		lua_pushnumber(L, player->getSkillLevel(skillType));
+		lua::pushNumber(L, player->getSkillLevel(skillType));
 	} else {
 		lua_pushnil(L);
 	}
@@ -8729,7 +8729,7 @@ int LuaScriptInterface::luaPlayerGetSkillPercent(lua_State* L) {
 	skills_t skillType = lua::getNumber<skills_t>(L, 2);
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && skillType <= SKILL_LAST) {
-		lua_pushnumber(L, player->skills[skillType].percent);
+		lua::pushNumber(L, player->skills[skillType].percent);
 	} else {
 		lua_pushnil(L);
 	}
@@ -8741,7 +8741,7 @@ int LuaScriptInterface::luaPlayerGetSkillTries(lua_State* L) {
 	skills_t skillType = lua::getNumber<skills_t>(L, 2);
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && skillType <= SKILL_LAST) {
-		lua_pushnumber(L, player->skills[skillType].tries);
+		lua::pushNumber(L, player->skills[skillType].tries);
 	} else {
 		lua_pushnil(L);
 	}
@@ -8781,7 +8781,7 @@ int LuaScriptInterface::luaPlayerGetSpecialSkill(lua_State* L) {
 	SpecialSkills_t specialSkillType = lua::getNumber<SpecialSkills_t>(L, 2);
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && specialSkillType <= SPECIALSKILL_LAST) {
-		lua_pushnumber(L, player->getSpecialSkill(specialSkillType));
+		lua::pushNumber(L, player->getSpecialSkill(specialSkillType));
 	} else {
 		lua_pushnil(L);
 	}
@@ -8826,7 +8826,7 @@ int LuaScriptInterface::luaPlayerGetOfflineTrainingTime(lua_State* L) {
 	// player:getOfflineTrainingTime()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getOfflineTrainingTime());
+		lua::pushNumber(L, player->getOfflineTrainingTime());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8864,7 +8864,7 @@ int LuaScriptInterface::luaPlayerGetOfflineTrainingSkill(lua_State* L) {
 	// player:getOfflineTrainingSkill()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getOfflineTrainingSkill());
+		lua::pushNumber(L, player->getOfflineTrainingSkill());
 	} else {
 		lua_pushnil(L);
 	}
@@ -8904,7 +8904,7 @@ int LuaScriptInterface::luaPlayerGetItemCount(lua_State* L) {
 	}
 
 	int32_t subType = lua::getNumber<int32_t>(L, 3, -1);
-	lua_pushnumber(L, player->getItemTypeCount(itemId, subType));
+	lua::pushNumber(L, player->getItemTypeCount(itemId, subType));
 	return 1;
 }
 
@@ -8984,7 +8984,7 @@ int LuaScriptInterface::luaPlayerGetSex(lua_State* L) {
 	// player:getSex()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getSex());
+		lua::pushNumber(L, player->getSex());
 	} else {
 		lua_pushnil(L);
 	}
@@ -9070,7 +9070,7 @@ int LuaScriptInterface::luaPlayerGetGuildLevel(lua_State* L) {
 	// player:getGuildLevel()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && player->getGuild()) {
-		lua_pushnumber(L, player->getGuildRank()->level);
+		lua::pushNumber(L, player->getGuildRank()->level);
 	} else {
 		lua_pushnil(L);
 	}
@@ -9161,7 +9161,7 @@ int LuaScriptInterface::luaPlayerGetStamina(lua_State* L) {
 	// player:getStamina()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getStaminaMinutes());
+		lua::pushNumber(L, player->getStaminaMinutes());
 	} else {
 		lua_pushnil(L);
 	}
@@ -9186,7 +9186,7 @@ int LuaScriptInterface::luaPlayerGetSoul(lua_State* L) {
 	// player:getSoul()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getSoul());
+		lua::pushNumber(L, player->getSoul());
 	} else {
 		lua_pushnil(L);
 	}
@@ -9210,7 +9210,7 @@ int LuaScriptInterface::luaPlayerGetMaxSoul(lua_State* L) {
 	// player:getMaxSoul()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player && player->vocation) {
-		lua_pushnumber(L, player->vocation->getSoulMax());
+		lua::pushNumber(L, player->vocation->getSoulMax());
 	} else {
 		lua_pushnil(L);
 	}
@@ -9221,7 +9221,7 @@ int LuaScriptInterface::luaPlayerGetBankBalance(lua_State* L) {
 	// player:getBankBalance()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getBankBalance());
+		lua::pushNumber(L, player->getBankBalance());
 	} else {
 		lua_pushnil(L);
 	}
@@ -9321,7 +9321,7 @@ int LuaScriptInterface::luaPlayerAddItem(lua_State* L) {
 		}
 
 		if (hasTable) {
-			lua_pushnumber(L, i);
+			lua::pushNumber(L, i);
 			lua::pushUserdata(L, item);
 			lua::setItemMetatable(L, -1, item);
 			lua_settable(L, -3);
@@ -9369,7 +9369,7 @@ int LuaScriptInterface::luaPlayerAddItemEx(lua_State* L) {
 	if (returnValue == RETURNVALUE_NOERROR) {
 		lua::removeTempItem(item);
 	}
-	lua_pushnumber(L, returnValue);
+	lua::pushNumber(L, returnValue);
 	return 1;
 }
 
@@ -9403,7 +9403,7 @@ int LuaScriptInterface::luaPlayerGetMoney(lua_State* L) {
 	// player:getMoney()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getMoney());
+		lua::pushNumber(L, player->getMoney());
 	} else {
 		lua_pushnil(L);
 	}
@@ -9488,7 +9488,7 @@ int LuaScriptInterface::luaPlayerShowTextDialog(lua_State* L) {
 	player->writeItem = item;
 	player->maxWriteLen = length;
 	player->sendTextWindow(item, length, canWrite);
-	lua_pushinteger(L, player->windowTextId);
+	lua::pushNumber(L, player->windowTextId);
 	return 1;
 }
 
@@ -9813,7 +9813,7 @@ int LuaScriptInterface::luaPlayerGetPremiumEndsAt(lua_State* L) {
 	// player:getPremiumEndsAt()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->premiumEndsAt);
+		lua::pushNumber(L, player->premiumEndsAt);
 	} else {
 		lua_pushnil(L);
 	}
@@ -10163,7 +10163,7 @@ int LuaScriptInterface::luaPlayerGetContainerId(lua_State* L) {
 
 	Container* container = lua::getUserdata<Container>(L, 2);
 	if (container) {
-		lua_pushnumber(L, player->getContainerID(container));
+		lua::pushNumber(L, player->getContainerID(container));
 	} else {
 		lua_pushnil(L);
 	}
@@ -10192,7 +10192,7 @@ int LuaScriptInterface::luaPlayerGetContainerIndex(lua_State* L) {
 	// player:getContainerIndex(id)
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getContainerIndex(lua::getNumber<uint8_t>(L, 2)));
+		lua::pushNumber(L, player->getContainerIndex(lua::getNumber<uint8_t>(L, 2)));
 	} else {
 		lua_pushnil(L);
 	}
@@ -10291,7 +10291,7 @@ int LuaScriptInterface::luaPlayerGetFightMode(lua_State* L) {
 	// player:getFightMode()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->fightMode);
+		lua::pushNumber(L, player->fightMode);
 	} else {
 		lua_pushnil(L);
 	}
@@ -10334,7 +10334,7 @@ int LuaScriptInterface::luaPlayerGetIdleTime(lua_State* L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	lua_pushnumber(L, player->getIdleTime());
+	lua::pushNumber(L, player->getIdleTime());
 	return 1;
 }
 
@@ -10377,7 +10377,7 @@ int LuaScriptInterface::luaPlayerGetClientExpDisplay(lua_State* L)
 	// player:getClientExpDisplay()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getClientExpDisplay());
+		lua::pushNumber(L, player->getClientExpDisplay());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10403,7 +10403,7 @@ int LuaScriptInterface::luaPlayerGetClientStaminaBonusDisplay(lua_State* L)
 	// player:getClientStaminaBonusDisplay()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getClientStaminaBonusDisplay());
+		lua::pushNumber(L, player->getClientStaminaBonusDisplay());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10429,7 +10429,7 @@ int LuaScriptInterface::luaPlayerGetClientLowLevelBonusDisplay(lua_State* L)
 	// player:getClientLowLevelBonusDisplay()
 	Player* player = lua::getUserdata<Player>(L, 1);
 	if (player) {
-		lua_pushnumber(L, player->getClientLowLevelBonusDisplay());
+		lua::pushNumber(L, player->getClientLowLevelBonusDisplay());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10522,7 +10522,7 @@ int LuaScriptInterface::luaMonsterGetId(lua_State* L) {
 			monster->setID();
 		}
 
-		lua_pushinteger(L, monster->getID());
+		lua::pushNumber(L, monster->getID());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10720,7 +10720,7 @@ int LuaScriptInterface::luaMonsterGetFriendCount(lua_State* L) {
 	// monster:getFriendCount()
 	Monster* monster = lua::getUserdata<Monster>(L, 1);
 	if (monster) {
-		lua_pushnumber(L, monster->getFriendList().size());
+		lua::pushNumber(L, monster->getFriendList().size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10792,7 +10792,7 @@ int LuaScriptInterface::luaMonsterGetTargetCount(lua_State* L) {
 	// monster:getTargetCount()
 	Monster* monster = lua::getUserdata<Monster>(L, 1);
 	if (monster) {
-		lua_pushnumber(L, monster->getTargetList().size());
+		lua::pushNumber(L, monster->getTargetList().size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10907,7 +10907,7 @@ int LuaScriptInterface::luaNpcGetSpeechBubble(lua_State* L) {
 	// npc:getSpeechBubble()
 	Npc* npc = lua::getUserdata<Npc>(L, 1);
 	if (npc) {
-		lua_pushnumber(L, npc->getSpeechBubble());
+		lua::pushNumber(L, npc->getSpeechBubble());
 	} else {
 		lua_pushnil(L);
 	}
@@ -10977,7 +10977,7 @@ int LuaScriptInterface::luaGuildGetId(lua_State* L) {
 	// guild:getId()
 	const auto& guild = getSharedPtr<Guild>(L, 1);
 	if (guild) {
-		lua_pushnumber(L, guild->getId());
+		lua::pushNumber(L, guild->getId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11115,7 +11115,7 @@ int LuaScriptInterface::luaGroupGetId(lua_State* L) {
 	// group:getId()
 	Group* group = lua::getUserdata<Group>(L, 1);
 	if (group) {
-		lua_pushnumber(L, group->id);
+		lua::pushNumber(L, group->id);
 	} else {
 		lua_pushnil(L);
 	}
@@ -11137,7 +11137,7 @@ int LuaScriptInterface::luaGroupGetFlags(lua_State* L) {
 	// group:getFlags()
 	Group* group = lua::getUserdata<Group>(L, 1);
 	if (group) {
-		lua_pushnumber(L, group->flags);
+		lua::pushNumber(L, group->flags);
 	} else {
 		lua_pushnil(L);
 	}
@@ -11159,7 +11159,7 @@ int LuaScriptInterface::luaGroupGetMaxDepotItems(lua_State* L) {
 	// group:getMaxDepotItems()
 	Group* group = lua::getUserdata<Group>(L, 1);
 	if (group) {
-		lua_pushnumber(L, group->maxDepotItems);
+		lua::pushNumber(L, group->maxDepotItems);
 	} else {
 		lua_pushnil(L);
 	}
@@ -11170,7 +11170,7 @@ int LuaScriptInterface::luaGroupGetMaxVipEntries(lua_State* L) {
 	// group:getMaxVipEntries()
 	Group* group = lua::getUserdata<Group>(L, 1);
 	if (group) {
-		lua_pushnumber(L, group->maxVipEntries);
+		lua::pushNumber(L, group->maxVipEntries);
 	} else {
 		lua_pushnil(L);
 	}
@@ -11213,7 +11213,7 @@ int LuaScriptInterface::luaVocationGetId(lua_State* L) {
 	// vocation:getId()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getId());
+		lua::pushNumber(L, vocation->getId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11224,7 +11224,7 @@ int LuaScriptInterface::luaVocationGetClientId(lua_State* L) {
 	// vocation:getClientId()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getClientId());
+		lua::pushNumber(L, vocation->getClientId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11259,7 +11259,7 @@ int LuaScriptInterface::luaVocationGetRequiredSkillTries(lua_State* L) {
 	if (vocation) {
 		skills_t skillType = lua::getNumber<skills_t>(L, 2);
 		uint16_t skillLevel = lua::getNumber<uint16_t>(L, 3);
-		lua_pushnumber(L, vocation->getReqSkillTries(skillType, skillLevel));
+		lua::pushNumber(L, vocation->getReqSkillTries(skillType, skillLevel));
 	} else {
 		lua_pushnil(L);
 	}
@@ -11271,7 +11271,7 @@ int LuaScriptInterface::luaVocationGetRequiredManaSpent(lua_State* L) {
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
 		uint32_t magicLevel = lua::getNumber<uint32_t>(L, 2);
-		lua_pushnumber(L, vocation->getReqMana(magicLevel));
+		lua::pushNumber(L, vocation->getReqMana(magicLevel));
 	} else {
 		lua_pushnil(L);
 	}
@@ -11282,7 +11282,7 @@ int LuaScriptInterface::luaVocationGetCapacityGain(lua_State* L) {
 	// vocation:getCapacityGain()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getCapGain());
+		lua::pushNumber(L, vocation->getCapGain());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11293,7 +11293,7 @@ int LuaScriptInterface::luaVocationGetHealthGain(lua_State* L) {
 	// vocation:getHealthGain()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getHPGain());
+		lua::pushNumber(L, vocation->getHPGain());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11304,7 +11304,7 @@ int LuaScriptInterface::luaVocationGetHealthGainTicks(lua_State* L) {
 	// vocation:getHealthGainTicks()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getHealthGainTicks());
+		lua::pushNumber(L, vocation->getHealthGainTicks());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11315,7 +11315,7 @@ int LuaScriptInterface::luaVocationGetHealthGainAmount(lua_State* L) {
 	// vocation:getHealthGainAmount()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getHealthGainAmount());
+		lua::pushNumber(L, vocation->getHealthGainAmount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11326,7 +11326,7 @@ int LuaScriptInterface::luaVocationGetManaGain(lua_State* L) {
 	// vocation:getManaGain()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getManaGain());
+		lua::pushNumber(L, vocation->getManaGain());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11337,7 +11337,7 @@ int LuaScriptInterface::luaVocationGetManaGainTicks(lua_State* L) {
 	// vocation:getManaGainTicks()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getManaGainTicks());
+		lua::pushNumber(L, vocation->getManaGainTicks());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11348,7 +11348,7 @@ int LuaScriptInterface::luaVocationGetManaGainAmount(lua_State* L) {
 	// vocation:getManaGainAmount()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getManaGainAmount());
+		lua::pushNumber(L, vocation->getManaGainAmount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11359,7 +11359,7 @@ int LuaScriptInterface::luaVocationGetMaxSoul(lua_State* L) {
 	// vocation:getMaxSoul()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getSoulMax());
+		lua::pushNumber(L, vocation->getSoulMax());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11370,7 +11370,7 @@ int LuaScriptInterface::luaVocationGetSoulGainTicks(lua_State* L) {
 	// vocation:getSoulGainTicks()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getSoulGainTicks());
+		lua::pushNumber(L, vocation->getSoulGainTicks());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11381,7 +11381,7 @@ int LuaScriptInterface::luaVocationGetAttackSpeed(lua_State* L) {
 	// vocation:getAttackSpeed()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getAttackSpeed());
+		lua::pushNumber(L, vocation->getAttackSpeed());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11392,7 +11392,7 @@ int LuaScriptInterface::luaVocationGetBaseSpeed(lua_State* L) {
 	// vocation:getBaseSpeed()
 	Vocation* vocation = lua::getUserdata<Vocation>(L, 1);
 	if (vocation) {
-		lua_pushnumber(L, vocation->getBaseSpeed());
+		lua::pushNumber(L, vocation->getBaseSpeed());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11483,7 +11483,7 @@ int LuaScriptInterface::luaTownGetId(lua_State* L) {
 	// town:getId()
 	Town* town = lua::getUserdata<Town>(L, 1);
 	if (town) {
-		lua_pushnumber(L, town->getID());
+		lua::pushNumber(L, town->getID());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11529,7 +11529,7 @@ int LuaScriptInterface::luaHouseGetId(lua_State* L) {
 	// house:getId()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getId());
+		lua::pushNumber(L, house->getId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11580,7 +11580,7 @@ int LuaScriptInterface::luaHouseGetRent(lua_State* L) {
 	// house:getRent()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getRent());
+		lua::pushNumber(L, house->getRent());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11604,7 +11604,7 @@ int LuaScriptInterface::luaHouseGetPaidUntil(lua_State* L) {
 	// house:getPaidUntil()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getPaidUntil());
+		lua::pushNumber(L, house->getPaidUntil());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11628,7 +11628,7 @@ int LuaScriptInterface::luaHouseGetPayRentWarnings(lua_State* L) {
 	// house:getPayRentWarnings()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getPayRentWarnings());
+		lua::pushNumber(L, house->getPayRentWarnings());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11663,7 +11663,7 @@ int LuaScriptInterface::luaHouseGetOwnerGuid(lua_State* L) {
 	// house:getOwnerGuid()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getOwner());
+		lua::pushNumber(L, house->getOwner());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11696,28 +11696,28 @@ int LuaScriptInterface::luaHouseStartTrade(lua_State* L) {
 	}
 
 	if (!tradePartner->getPosition().isInRange(player->getPosition(), 2, 2, 0)) {
-		lua_pushnumber(L, RETURNVALUE_TRADEPLAYERFARAWAY);
+		lua::pushNumber(L, RETURNVALUE_TRADEPLAYERFARAWAY);
 		return 1;
 	}
 
 	if (house->getOwner() != player->getGUID()) {
-		lua_pushnumber(L, RETURNVALUE_YOUDONTOWNTHISHOUSE);
+		lua::pushNumber(L, RETURNVALUE_YOUDONTOWNTHISHOUSE);
 		return 1;
 	}
 
 	if (g_game.map.houses.getHouseByPlayerId(tradePartner->getGUID())) {
-		lua_pushnumber(L, RETURNVALUE_TRADEPLAYERALREADYOWNSAHOUSE);
+		lua::pushNumber(L, RETURNVALUE_TRADEPLAYERALREADYOWNSAHOUSE);
 		return 1;
 	}
 
 	if (IOLoginData::hasBiddedOnHouse(tradePartner->getGUID())) {
-		lua_pushnumber(L, RETURNVALUE_TRADEPLAYERHIGHESTBIDDER);
+		lua::pushNumber(L, RETURNVALUE_TRADEPLAYERHIGHESTBIDDER);
 		return 1;
 	}
 
 	Item* transferItem = house->getTransferItem();
 	if (!transferItem) {
-		lua_pushnumber(L, RETURNVALUE_YOUCANNOTTRADETHISHOUSE);
+		lua::pushNumber(L, RETURNVALUE_YOUCANNOTTRADETHISHOUSE);
 		return 1;
 	}
 
@@ -11726,7 +11726,7 @@ int LuaScriptInterface::luaHouseStartTrade(lua_State* L) {
 		house->resetTransferItem();
 	}
 
-	lua_pushnumber(L, RETURNVALUE_NOERROR);
+	lua::pushNumber(L, RETURNVALUE_NOERROR);
 	return 1;
 }
 
@@ -11754,7 +11754,7 @@ int LuaScriptInterface::luaHouseGetBedCount(lua_State* L) {
 	// house:getBedCount()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getBedCount());
+		lua::pushNumber(L, house->getBedCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11785,7 +11785,7 @@ int LuaScriptInterface::luaHouseGetDoorCount(lua_State* L) {
 	// house:getDoorCount()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getDoors().size());
+		lua::pushNumber(L, house->getDoors().size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11802,7 +11802,7 @@ int LuaScriptInterface::luaHouseGetDoorIdByPosition(lua_State* L) {
 
 	Door* door = house->getDoorByPosition(lua::getPosition(L, 2));
 	if (door) {
-		lua_pushnumber(L, door->getDoorId());
+		lua::pushNumber(L, door->getDoorId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -11858,7 +11858,7 @@ int LuaScriptInterface::luaHouseGetTileCount(lua_State* L) {
 	// house:getTileCount()
 	House* house = lua::getUserdata<House>(L, 1);
 	if (house) {
-		lua_pushnumber(L, house->getTiles().size());
+		lua::pushNumber(L, house->getTiles().size());
 	} else {
 		lua_pushnil(L);
 	}
@@ -12125,7 +12125,7 @@ int LuaScriptInterface::luaItemTypeGetType(lua_State* L) {
 	// itemType:getType()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->type);
+		lua::pushNumber(L, itemType->type);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12136,7 +12136,7 @@ int LuaScriptInterface::luaItemTypeGetGroup(lua_State* L) {
 	// itemType:getGroup()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->group);
+		lua::pushNumber(L, itemType->group);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12147,7 +12147,7 @@ int LuaScriptInterface::luaItemTypeGetId(lua_State* L) {
 	// itemType:getId()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->id);
+		lua::pushNumber(L, itemType->id);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12158,7 +12158,7 @@ int LuaScriptInterface::luaItemTypeGetClientId(lua_State* L) {
 	// itemType:getClientId()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->clientId);
+		lua::pushNumber(L, itemType->clientId);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12191,7 +12191,7 @@ int LuaScriptInterface::luaItemTypeGetRotateTo(lua_State* L) {
 	// itemType:getRotateTo()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->rotateTo);
+		lua::pushNumber(L, itemType->rotateTo);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12224,7 +12224,7 @@ int LuaScriptInterface::luaItemTypeGetSlotPosition(lua_State *L) {
 	// itemType:getSlotPosition()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->slotPosition);
+		lua::pushNumber(L, itemType->slotPosition);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12235,7 +12235,7 @@ int LuaScriptInterface::luaItemTypeGetCharges(lua_State* L) {
 	// itemType:getCharges()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->charges);
+		lua::pushNumber(L, itemType->charges);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12246,7 +12246,7 @@ int LuaScriptInterface::luaItemTypeGetFluidSource(lua_State* L) {
 	// itemType:getFluidSource()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->fluidSource);
+		lua::pushNumber(L, itemType->fluidSource);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12257,7 +12257,7 @@ int LuaScriptInterface::luaItemTypeGetCapacity(lua_State* L) {
 	// itemType:getCapacity()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->maxItems);
+		lua::pushNumber(L, itemType->maxItems);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12275,7 +12275,7 @@ int LuaScriptInterface::luaItemTypeGetWeight(lua_State* L) {
 	}
 
 	uint64_t weight = static_cast<uint64_t>(itemType->weight) * std::max<int32_t>(1, count);
-	lua_pushnumber(L, weight);
+	lua::pushNumber(L, weight);
 	return 1;
 }
 
@@ -12286,7 +12286,7 @@ int LuaScriptInterface::luaItemTypeGetWorth(lua_State* L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	lua_pushnumber(L, itemType->worth);
+	lua::pushNumber(L, itemType->worth);
 	return 1;
 }
 
@@ -12294,7 +12294,7 @@ int LuaScriptInterface::luaItemTypeGetHitChance(lua_State* L) {
 	// itemType:getHitChance()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->hitChance);
+		lua::pushNumber(L, itemType->hitChance);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12305,7 +12305,7 @@ int LuaScriptInterface::luaItemTypeGetShootRange(lua_State* L) {
 	// itemType:getShootRange()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->shootRange);
+		lua::pushNumber(L, itemType->shootRange);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12316,7 +12316,7 @@ int LuaScriptInterface::luaItemTypeGetAttack(lua_State* L) {
 	// itemType:getAttack()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->attack);
+		lua::pushNumber(L, itemType->attack);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12327,7 +12327,7 @@ int LuaScriptInterface::luaItemTypeGetAttackSpeed(lua_State* L) {
 	// itemType:getAttackSpeed()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->attackSpeed);
+		lua::pushNumber(L, itemType->attackSpeed);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12338,7 +12338,7 @@ int LuaScriptInterface::luaItemTypeGetDefense(lua_State* L) {
 	// itemType:getDefense()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->defense);
+		lua::pushNumber(L, itemType->defense);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12349,7 +12349,7 @@ int LuaScriptInterface::luaItemTypeGetExtraDefense(lua_State* L) {
 	// itemType:getExtraDefense()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->extraDefense);
+		lua::pushNumber(L, itemType->extraDefense);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12360,7 +12360,7 @@ int LuaScriptInterface::luaItemTypeGetArmor(lua_State* L) {
 	// itemType:getArmor()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->armor);
+		lua::pushNumber(L, itemType->armor);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12371,7 +12371,7 @@ int LuaScriptInterface::luaItemTypeGetWeaponType(lua_State* L) {
 	// itemType:getWeaponType()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->weaponType);
+		lua::pushNumber(L, itemType->weaponType);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12382,7 +12382,7 @@ int LuaScriptInterface::luaItemTypeGetAmmoType(lua_State* L) {
 	// itemType:getAmmoType()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->ammoType);
+		lua::pushNumber(L, itemType->ammoType);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12393,7 +12393,7 @@ int LuaScriptInterface::luaItemTypeGetCorpseType(lua_State* L) {
 	// itemType:getCorpseType()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->corpseType);
+		lua::pushNumber(L, itemType->corpseType);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12426,7 +12426,7 @@ int LuaScriptInterface::luaItemTypeGetAbilities(lua_State* L) {
 		// Stats
 		lua_createtable(L, 0, STAT_LAST + 1);
 		for (int32_t i = STAT_FIRST; i <= STAT_LAST; i++) {
-			lua_pushnumber(L, abilities.stats[i]);
+			lua::pushNumber(L, abilities.stats[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, "stats");
@@ -12434,7 +12434,7 @@ int LuaScriptInterface::luaItemTypeGetAbilities(lua_State* L) {
 		// Stats percent
 		lua_createtable(L, 0, STAT_LAST + 1);
 		for (int32_t i = STAT_FIRST; i <= STAT_LAST; i++) {
-			lua_pushnumber(L, abilities.statsPercent[i]);
+			lua::pushNumber(L, abilities.statsPercent[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, "statsPercent");
@@ -12442,7 +12442,7 @@ int LuaScriptInterface::luaItemTypeGetAbilities(lua_State* L) {
 		// Skills
 		lua_createtable(L, 0, SKILL_LAST + 1);
 		for (int32_t i = SKILL_FIRST; i <= SKILL_LAST; i++) {
-			lua_pushnumber(L, abilities.skills[i]);
+			lua::pushNumber(L, abilities.skills[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, "skills");
@@ -12450,7 +12450,7 @@ int LuaScriptInterface::luaItemTypeGetAbilities(lua_State* L) {
 		// Special skills
 		lua_createtable(L, 0, SPECIALSKILL_LAST + 1);
 		for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; i++) {
-			lua_pushnumber(L, abilities.specialSkills[i]);
+			lua::pushNumber(L, abilities.specialSkills[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, "specialSkills");
@@ -12458,7 +12458,7 @@ int LuaScriptInterface::luaItemTypeGetAbilities(lua_State* L) {
 		// Field absorb percent
 		lua_createtable(L, 0, COMBAT_COUNT);
 		for (int32_t i = 0; i < COMBAT_COUNT; i++) {
-			lua_pushnumber(L, abilities.fieldAbsorbPercent[i]);
+			lua::pushNumber(L, abilities.fieldAbsorbPercent[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, "fieldAbsorbPercent");
@@ -12466,7 +12466,7 @@ int LuaScriptInterface::luaItemTypeGetAbilities(lua_State* L) {
 		// Absorb percent
 		lua_createtable(L, 0, COMBAT_COUNT);
 		for (int32_t i = 0; i < COMBAT_COUNT; i++) {
-			lua_pushnumber(L, abilities.absorbPercent[i]);
+			lua::pushNumber(L, abilities.absorbPercent[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, "absorbPercent");
@@ -12533,7 +12533,7 @@ int LuaScriptInterface::luaItemTypeGetWieldInfo(lua_State* L) {
 	// itemType:getWieldInfo()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushinteger(L, itemType->wieldInfo);
+		lua::pushNumber(L, itemType->wieldInfo);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12544,7 +12544,7 @@ int LuaScriptInterface::luaItemTypeGetDuration(lua_State* L) {
 	// itemType:getDuration()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushinteger(L, itemType->decayTime);
+		lua::pushNumber(L, itemType->decayTime);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12555,7 +12555,7 @@ int LuaScriptInterface::luaItemTypeGetLevelDoor(lua_State* L) {
 	// itemType:getLevelDoor()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushinteger(L, itemType->levelDoor);
+		lua::pushNumber(L, itemType->levelDoor);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12588,7 +12588,7 @@ int LuaScriptInterface::luaItemTypeGetMinReqLevel(lua_State* L) {
 	// itemType:getMinReqLevel()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushinteger(L, itemType->minReqLevel);
+		lua::pushNumber(L, itemType->minReqLevel);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12599,7 +12599,7 @@ int LuaScriptInterface::luaItemTypeGetMinReqMagicLevel(lua_State* L) {
 	// itemType:getMinReqMagicLevel()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushinteger(L, itemType->minReqMagicLevel);
+		lua::pushNumber(L, itemType->minReqMagicLevel);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12616,7 +12616,7 @@ int LuaScriptInterface::luaItemTypeGetElementType(lua_State* L) {
 
 	auto& abilities = itemType->abilities;
 	if (abilities) {
-		lua_pushnumber(L, abilities->elementType);
+		lua::pushNumber(L, abilities->elementType);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12633,7 +12633,7 @@ int LuaScriptInterface::luaItemTypeGetElementDamage(lua_State* L) {
 
 	auto& abilities = itemType->abilities;
 	if (abilities) {
-		lua_pushnumber(L, abilities->elementDamage);
+		lua::pushNumber(L, abilities->elementDamage);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12644,7 +12644,7 @@ int LuaScriptInterface::luaItemTypeGetTransformEquipId(lua_State* L) {
 	// itemType:getTransformEquipId()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->transformEquipTo);
+		lua::pushNumber(L, itemType->transformEquipTo);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12655,7 +12655,7 @@ int LuaScriptInterface::luaItemTypeGetTransformDeEquipId(lua_State* L) {
 	// itemType:getTransformDeEquipId()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->transformDeEquipTo);
+		lua::pushNumber(L, itemType->transformDeEquipTo);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12666,7 +12666,7 @@ int LuaScriptInterface::luaItemTypeGetDestroyId(lua_State* L) {
 	// itemType:getDestroyId()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->destroyTo);
+		lua::pushNumber(L, itemType->destroyTo);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12677,7 +12677,7 @@ int LuaScriptInterface::luaItemTypeGetDecayId(lua_State* L) {
 	// itemType:getDecayId()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->decayTo);
+		lua::pushNumber(L, itemType->decayTo);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12688,7 +12688,7 @@ int LuaScriptInterface::luaItemTypeGetRequiredLevel(lua_State* L) {
 	// itemType:getRequiredLevel()
 	const ItemType* itemType = lua::getUserdata<const ItemType>(L, 1);
 	if (itemType) {
-		lua_pushnumber(L, itemType->minReqLevel);
+		lua::pushNumber(L, itemType->minReqLevel);
 	} else {
 		lua_pushnil(L);
 	}
@@ -12769,7 +12769,7 @@ int LuaScriptInterface::luaCombatGetParameter(lua_State* L) {
 		return 1;
 	}
 
-	lua_pushnumber(L, value);
+	lua::pushNumber(L, value);
 	return 1;
 }
 
@@ -12999,7 +12999,7 @@ int LuaScriptInterface::luaConditionGetId(lua_State* L) {
 	// condition:getId()
 	Condition* condition = lua::getUserdata<Condition>(L, 1);
 	if (condition) {
-		lua_pushnumber(L, condition->getId());
+		lua::pushNumber(L, condition->getId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -13010,7 +13010,7 @@ int LuaScriptInterface::luaConditionGetSubId(lua_State* L) {
 	// condition:getSubId()
 	Condition* condition = lua::getUserdata<Condition>(L, 1);
 	if (condition) {
-		lua_pushnumber(L, condition->getSubId());
+		lua::pushNumber(L, condition->getSubId());
 	} else {
 		lua_pushnil(L);
 	}
@@ -13021,7 +13021,7 @@ int LuaScriptInterface::luaConditionGetType(lua_State* L) {
 	// condition:getType()
 	Condition* condition = lua::getUserdata<Condition>(L, 1);
 	if (condition) {
-		lua_pushnumber(L, condition->getType());
+		lua::pushNumber(L, condition->getType());
 	} else {
 		lua_pushnil(L);
 	}
@@ -13032,7 +13032,7 @@ int LuaScriptInterface::luaConditionGetIcons(lua_State* L) {
 	// condition:getIcons()
 	Condition* condition = lua::getUserdata<Condition>(L, 1);
 	if (condition) {
-		lua_pushnumber(L, condition->getIcons());
+		lua::pushNumber(L, condition->getIcons());
 	} else {
 		lua_pushnil(L);
 	}
@@ -13043,7 +13043,7 @@ int LuaScriptInterface::luaConditionGetEndTime(lua_State* L) {
 	// condition:getEndTime()
 	Condition* condition = lua::getUserdata<Condition>(L, 1);
 	if (condition) {
-		lua_pushnumber(L, condition->getEndTime());
+		lua::pushNumber(L, condition->getEndTime());
 	} else {
 		lua_pushnil(L);
 	}
@@ -13066,7 +13066,7 @@ int LuaScriptInterface::luaConditionGetTicks(lua_State* L) {
 	// condition:getTicks()
 	Condition* condition = lua::getUserdata<Condition>(L, 1);
 	if (condition) {
-		lua_pushnumber(L, condition->getTicks());
+		lua::pushNumber(L, condition->getTicks());
 	} else {
 		lua_pushnil(L);
 	}
@@ -13120,7 +13120,7 @@ int LuaScriptInterface::luaConditionGetParameter(lua_State* L) {
 		return 1;
 	}
 
-	lua_pushnumber(L, value);
+	lua::pushNumber(L, value);
 	return 1;
 }
 
@@ -13491,7 +13491,7 @@ int LuaScriptInterface::luaMonsterTypeHealth(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.health);
+			lua::pushNumber(L, monsterType->info.health);
 		} else {
 			monsterType->info.health = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -13507,7 +13507,7 @@ int LuaScriptInterface::luaMonsterTypeMaxHealth(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.healthMax);
+			lua::pushNumber(L, monsterType->info.healthMax);
 		} else {
 			monsterType->info.healthMax = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -13523,7 +13523,7 @@ int LuaScriptInterface::luaMonsterTypeRunHealth(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.runAwayHealth);
+			lua::pushNumber(L, monsterType->info.runAwayHealth);
 		} else {
 			monsterType->info.runAwayHealth = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -13539,7 +13539,7 @@ int LuaScriptInterface::luaMonsterTypeExperience(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.experience);
+			lua::pushNumber(L, monsterType->info.experience);
 		} else {
 			monsterType->info.experience = lua::getNumber<uint64_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -13555,7 +13555,7 @@ int LuaScriptInterface::luaMonsterTypeSkull(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.skull);
+			lua::pushNumber(L, monsterType->info.skull);
 		} else {
 			if (isNumber(L, 2)) {
 				monsterType->info.skull = lua::getNumber<Skulls_t>(L, 2);
@@ -13575,7 +13575,7 @@ int LuaScriptInterface::luaMonsterTypeCombatImmunities(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.damageImmunities);
+			lua::pushNumber(L, monsterType->info.damageImmunities);
 		} else {
 			std::string immunity = lua::getString(L, 2);
 			if (immunity == "physical") {
@@ -13624,7 +13624,7 @@ int LuaScriptInterface::luaMonsterTypeConditionImmunities(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.conditionImmunities);
+			lua::pushNumber(L, monsterType->info.conditionImmunities);
 		} else {
 			std::string immunity = lua::getString(L, 2);
 			if (immunity == "physical") {
@@ -13789,7 +13789,7 @@ int LuaScriptInterface::luaMonsterTypeGetElementList(lua_State* L) {
 
 	lua_createtable(L, monsterType->info.elementMap.size(), 0);
 	for (const auto& elementEntry : monsterType->info.elementMap) {
-		lua_pushnumber(L, elementEntry.second);
+		lua::pushNumber(L, elementEntry.second);
 		lua_rawseti(L, -2, elementEntry.first);
 	}
 	return 1;
@@ -13980,7 +13980,7 @@ int LuaScriptInterface::luaMonsterTypeMaxSummons(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.maxSummons);
+			lua::pushNumber(L, monsterType->info.maxSummons);
 		} else {
 			monsterType->info.maxSummons = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -13996,7 +13996,7 @@ int LuaScriptInterface::luaMonsterTypeArmor(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.armor);
+			lua::pushNumber(L, monsterType->info.armor);
 		} else {
 			monsterType->info.armor = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14012,7 +14012,7 @@ int LuaScriptInterface::luaMonsterTypeDefense(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.defense);
+			lua::pushNumber(L, monsterType->info.defense);
 		} else {
 			monsterType->info.defense = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14045,7 +14045,7 @@ int LuaScriptInterface::luaMonsterTypeRace(lua_State* L) {
 	std::string race = lua::getString(L, 2);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.race);
+			lua::pushNumber(L, monsterType->info.race);
 		} else {
 			if (race == "venom") {
 				monsterType->info.race = RACE_VENOM;
@@ -14075,7 +14075,7 @@ int LuaScriptInterface::luaMonsterTypeCorpseId(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.lookcorpse);
+			lua::pushNumber(L, monsterType->info.lookcorpse);
 		} else {
 			monsterType->info.lookcorpse = lua::getNumber<uint16_t>(L, 2);
 			lua_pushboolean(L, true);
@@ -14091,7 +14091,7 @@ int LuaScriptInterface::luaMonsterTypeManaCost(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.manaCost);
+			lua::pushNumber(L, monsterType->info.manaCost);
 		} else {
 			monsterType->info.manaCost = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14107,7 +14107,7 @@ int LuaScriptInterface::luaMonsterTypeBaseSpeed(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.baseSpeed);
+			lua::pushNumber(L, monsterType->info.baseSpeed);
 		} else {
 			monsterType->info.baseSpeed = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14126,8 +14126,8 @@ int LuaScriptInterface::luaMonsterTypeLight(lua_State* L) {
 		return 1;
 	}
 	if (lua_gettop(L) == 1) {
-		lua_pushnumber(L, monsterType->info.light.level);
-		lua_pushnumber(L, monsterType->info.light.color);
+		lua::pushNumber(L, monsterType->info.light.level);
+		lua::pushNumber(L, monsterType->info.light.color);
 		return 2;
 	} else {
 		monsterType->info.light.color = lua::getNumber<uint8_t>(L, 2);
@@ -14142,7 +14142,7 @@ int LuaScriptInterface::luaMonsterTypeStaticAttackChance(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.staticAttackChance);
+			lua::pushNumber(L, monsterType->info.staticAttackChance);
 		} else {
 			monsterType->info.staticAttackChance = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14158,7 +14158,7 @@ int LuaScriptInterface::luaMonsterTypeTargetDistance(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.targetDistance);
+			lua::pushNumber(L, monsterType->info.targetDistance);
 		} else {
 			monsterType->info.targetDistance = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14174,7 +14174,7 @@ int LuaScriptInterface::luaMonsterTypeYellChance(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.yellChance);
+			lua::pushNumber(L, monsterType->info.yellChance);
 		} else {
 			monsterType->info.yellChance = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14190,7 +14190,7 @@ int LuaScriptInterface::luaMonsterTypeYellSpeedTicks(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.yellSpeedTicks);
+			lua::pushNumber(L, monsterType->info.yellSpeedTicks);
 		} else {
 			monsterType->info.yellSpeedTicks = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14206,7 +14206,7 @@ int LuaScriptInterface::luaMonsterTypeChangeTargetChance(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.changeTargetChance);
+			lua::pushNumber(L, monsterType->info.changeTargetChance);
 		} else {
 			monsterType->info.changeTargetChance = lua::getNumber<int32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14222,7 +14222,7 @@ int LuaScriptInterface::luaMonsterTypeChangeTargetSpeed(lua_State* L) {
 	MonsterType* monsterType = lua::getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, monsterType->info.changeTargetSpeed);
+			lua::pushNumber(L, monsterType->info.changeTargetSpeed);
 		} else {
 			monsterType->info.changeTargetSpeed = lua::getNumber<uint32_t>(L, 2);
 			lua::pushBoolean(L, true);
@@ -14765,7 +14765,7 @@ int LuaScriptInterface::luaPartyGetMemberCount(lua_State* L) {
 	// party:getMemberCount()
 	Party* party = lua::getUserdata<Party>(L, 1);
 	if (party) {
-		lua_pushnumber(L, party->getMemberCount());
+		lua::pushNumber(L, party->getMemberCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -14794,7 +14794,7 @@ int LuaScriptInterface::luaPartyGetInviteeCount(lua_State* L) {
 	// party:getInviteeCount()
 	Party* party = lua::getUserdata<Party>(L, 1);
 	if (party) {
-		lua_pushnumber(L, party->getInvitationCount());
+		lua::pushNumber(L, party->getInvitationCount());
 	} else {
 		lua_pushnil(L);
 	}
@@ -15049,7 +15049,7 @@ int LuaScriptInterface::luaSpellId(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getId());
+			lua::pushNumber(L, spell->getId());
 		} else {
 			spell->setId(lua::getNumber<uint8_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15065,8 +15065,8 @@ int LuaScriptInterface::luaSpellGroup(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getGroup());
-			lua_pushnumber(L, spell->getSecondaryGroup());
+			lua::pushNumber(L, spell->getGroup());
+			lua::pushNumber(L, spell->getSecondaryGroup());
 			return 2;
 		} else if (lua_gettop(L) == 2) {
 			SpellGroup_t group = lua::getNumber<SpellGroup_t>(L, 2);
@@ -15130,7 +15130,7 @@ int LuaScriptInterface::luaSpellCooldown(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getCooldown());
+			lua::pushNumber(L, spell->getCooldown());
 		} else {
 			spell->setCooldown(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15146,8 +15146,8 @@ int LuaScriptInterface::luaSpellGroupCooldown(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getGroupCooldown());
-			lua_pushnumber(L, spell->getSecondaryCooldown());
+			lua::pushNumber(L, spell->getGroupCooldown());
+			lua::pushNumber(L, spell->getSecondaryCooldown());
 			return 2;
 		} else if (lua_gettop(L) == 2) {
 			spell->setGroupCooldown(lua::getNumber<uint32_t>(L, 2));
@@ -15168,7 +15168,7 @@ int LuaScriptInterface::luaSpellLevel(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getLevel());
+			lua::pushNumber(L, spell->getLevel());
 		} else {
 			spell->setLevel(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15184,7 +15184,7 @@ int LuaScriptInterface::luaSpellMagicLevel(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getMagicLevel());
+			lua::pushNumber(L, spell->getMagicLevel());
 		} else {
 			spell->setMagicLevel(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15200,7 +15200,7 @@ int LuaScriptInterface::luaSpellMana(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getMana());
+			lua::pushNumber(L, spell->getMana());
 		} else {
 			spell->setMana(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15216,7 +15216,7 @@ int LuaScriptInterface::luaSpellManaPercent(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getManaPercent());
+			lua::pushNumber(L, spell->getManaPercent());
 		} else {
 			spell->setManaPercent(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15232,7 +15232,7 @@ int LuaScriptInterface::luaSpellSoul(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getSoulCost());
+			lua::pushNumber(L, spell->getSoulCost());
 		} else {
 			spell->setSoulCost(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15248,7 +15248,7 @@ int LuaScriptInterface::luaSpellRange(lua_State* L) {
 	Spell* spell = lua::getUserdata<Spell>(L, 1);
 	if (spell) {
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getRange());
+			lua::pushNumber(L, spell->getRange());
 		} else {
 			spell->setRange(lua::getNumber<int32_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15591,7 +15591,7 @@ int LuaScriptInterface::luaSpellRuneLevel(lua_State* L) {
 		}
 
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getLevel());
+			lua::pushNumber(L, spell->getLevel());
 		} else {
 			spell->setLevel(level);
 			lua::pushBoolean(L, true);
@@ -15615,7 +15615,7 @@ int LuaScriptInterface::luaSpellRuneMagicLevel(lua_State* L) {
 		}
 
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getMagicLevel());
+			lua::pushNumber(L, spell->getMagicLevel());
 		} else {
 			spell->setMagicLevel(magLevel);
 			lua::pushBoolean(L, true);
@@ -15638,7 +15638,7 @@ int LuaScriptInterface::luaSpellRuneId(lua_State* L) {
 		}
 
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, rune->getRuneItemId());
+			lua::pushNumber(L, rune->getRuneItemId());
 		} else {
 			rune->setRuneItemId(lua::getNumber<uint16_t>(L, 2));
 			lua::pushBoolean(L, true);
@@ -15661,7 +15661,7 @@ int LuaScriptInterface::luaSpellCharges(lua_State* L) {
 		}
 
 		if (lua_gettop(L) == 1) {
-			lua_pushnumber(L, spell->getCharges());
+			lua::pushNumber(L, spell->getCharges());
 		} else {
 			spell->setCharges(lua::getNumber<uint32_t>(L, 2));
 			lua::pushBoolean(L, true);

@@ -15,11 +15,11 @@ CreatureEvents::CreatureEvents() : scriptInterface("CreatureScript Interface") {
 namespace {
 
 	void pushCombatDamage(lua_State* L, const CombatDamage& damage) {
-		lua_pushnumber(L, damage.primary.value);
-		lua_pushnumber(L, damage.primary.type);
-		lua_pushnumber(L, damage.secondary.value);
-		lua_pushnumber(L, damage.secondary.type);
-		lua_pushnumber(L, damage.origin);
+		lua::pushNumber(L, damage.primary.value);
+		lua::pushNumber(L, damage.primary.type);
+		lua::pushNumber(L, damage.secondary.value);
+		lua::pushNumber(L, damage.secondary.type);
+		lua::pushNumber(L, damage.origin);
 	}
 
 } // namespace
@@ -348,7 +348,7 @@ bool CreatureEvent::executeOnThink(Creature* creature, uint32_t interval) {
 	scriptInterface->pushFunction(scriptId);
 	lua::pushUserdata(L, creature);
 	lua::setCreatureMetatable(L, -1, creature);
-	lua_pushnumber(L, interval);
+	lua::pushNumber(L, interval);
 
 	return scriptInterface->callFunction(2);
 }
@@ -434,9 +434,9 @@ bool CreatureEvent::executeAdvance(Player* player, skills_t skill, uint32_t oldL
 	scriptInterface->pushFunction(scriptId);
 	lua::pushUserdata(L, player);
 	lua::setMetatable(L, -1, "Player");
-	lua_pushnumber(L, static_cast<uint32_t>(skill));
-	lua_pushnumber(L, oldLevel);
-	lua_pushnumber(L, newLevel);
+	lua::pushNumber(L, static_cast<uint32_t>(skill));
+	lua::pushNumber(L, oldLevel);
+	lua::pushNumber(L, newLevel);
 
 	return scriptInterface->callFunction(4);
 }
@@ -477,9 +477,9 @@ void CreatureEvent::executeModalWindow(Player* player, uint32_t modalWindowId, u
 	lua::pushUserdata(L, player);
 	lua::setMetatable(L, -1, "Player");
 
-	lua_pushnumber(L, modalWindowId);
-	lua_pushnumber(L, buttonId);
-	lua_pushnumber(L, choiceId);
+	lua::pushNumber(L, modalWindowId);
+	lua::pushNumber(L, buttonId);
+	lua::pushNumber(L, choiceId);
 
 	scriptInterface->callVoidFunction(4);
 }
@@ -503,7 +503,7 @@ bool CreatureEvent::executeTextEdit(Player* player, Item* item, std::string_view
 	lua::pushThing(L, item);
 	lua::pushString(L, text);
 
-	lua_pushinteger(L, windowTextId);
+	lua::pushNumber(L, windowTextId);
 
 	return scriptInterface->callFunction(4);
 }
@@ -604,7 +604,7 @@ void CreatureEvent::executeExtendedOpcode(Player* player, uint8_t opcode, const 
 	lua::pushUserdata(L, player);
 	lua::setMetatable(L, -1, "Player");
 
-	lua_pushnumber(L, opcode);
+	lua::pushNumber(L, opcode);
 	lua::pushString(L, buffer);
 
 	scriptInterface->callVoidFunction(3);

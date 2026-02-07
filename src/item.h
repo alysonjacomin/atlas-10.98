@@ -238,11 +238,11 @@ class ItemAttributes {
 				}
 
 				void operator()(const int64_t& v) const {
-					lua_pushnumber(L, v);
+					lua::pushNumber(L, v);
 				}
 
 				void operator()(const double& v) const {
-					lua_pushnumber(L, v);
+					lua::pushNumber(L, v);
 				}
 			};
 

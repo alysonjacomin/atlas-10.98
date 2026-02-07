@@ -352,7 +352,7 @@ namespace events::creature {
 		lua::setCreatureMetatable(L, -1, speaker);
 
 		lua::pushString(L, words);
-		lua_pushnumber(L, type);
+		lua::pushNumber(L, type);
 
 		scriptInterface.callVoidFunction(4);
 	}
@@ -377,8 +377,8 @@ namespace events::creature {
 		lua::pushUserdata(L, creature);
 		lua::setCreatureMetatable(L, -1, creature);
 	 
-		lua_pushnumber(L, fromZone);
-		lua_pushnumber(L, toZone);
+		lua::pushNumber(L, fromZone);
+		lua::pushNumber(L, toZone);
 	 
 		scriptInterface.callVoidFunction(3);
 	}
@@ -403,16 +403,16 @@ namespace events::creature {
 		lua::pushUserdata(L, creature);
 		lua::setMetatable(L, -1, "Creature");
 
-		lua_pushnumber(L, key);
+		lua::pushNumber(L, key);
 
 		if (value) {
-			lua_pushnumber(L, value.value());
+			lua::pushNumber(L, value.value());
 		} else {
 			lua_pushnil(L);
 		}
 
 		if (oldValue) {
-			lua_pushnumber(L, oldValue.value());
+			lua::pushNumber(L, oldValue.value());
 		} else {
 			lua_pushnil(L);
 		}
@@ -599,7 +599,7 @@ namespace events::party {
 		lua::pushUserdata(L, party);
 		lua::setMetatable(L, -1, "Party");
 
-		lua_pushnumber(L, exp);
+		lua::pushNumber(L, exp);
 
 		if (lua::protectedCall(L, 2, 1) != 0) {
 			reportErrorFunc(L, lua::popString(L));
@@ -671,7 +671,7 @@ namespace events::player {
 		}
 
 		lua::pushPosition(L, position, stackpos);
-		lua_pushnumber(L, lookDistance);
+		lua::pushNumber(L, lookDistance);
 
 		scriptInterface.callVoidFunction(4);
 	}
@@ -699,7 +699,7 @@ namespace events::player {
 		lua::pushUserdata(L, creature);
 		lua::setCreatureMetatable(L, -1, creature);
 
-		lua_pushnumber(L, lookDistance);
+		lua::pushNumber(L, lookDistance);
 
 		scriptInterface.callVoidFunction(3);
 	}
@@ -730,7 +730,7 @@ namespace events::player {
 		lua::pushUserdata(L, item);
 		lua::setItemMetatable(L, -1, item);
 
-		lua_pushnumber(L, lookDistance);
+		lua::pushNumber(L, lookDistance);
 
 		scriptInterface.callVoidFunction(4);
 	}
@@ -758,7 +758,7 @@ namespace events::player {
 		lua::pushUserdata(L, itemType);
 		lua::setMetatable(L, -1, "ItemType");
 
-		lua_pushnumber(L, count);
+		lua::pushNumber(L, count);
 		lua_pushstring(L, description.c_str());
 
 		return scriptInterface.callFunction(4);
@@ -787,7 +787,7 @@ namespace events::player {
 		lua::pushUserdata(L, item);
 		lua::setItemMetatable(L, -1, item);
 
-		lua_pushnumber(L, count);
+		lua::pushNumber(L, count);
 		lua::pushPosition(L, fromPosition);
 		lua::pushPosition(L, toPosition);
 
@@ -830,7 +830,7 @@ namespace events::player {
 		lua::pushUserdata(L, item);
 		lua::setItemMetatable(L, -1, item);
 
-		lua_pushnumber(L, count);
+		lua::pushNumber(L, count);
 		lua::pushPosition(L, fromPosition);
 		lua::pushPosition(L, toPosition);
 
@@ -891,8 +891,8 @@ namespace events::player {
 
 		lua::pushString(L, targetName);
 
-		lua_pushnumber(L, reportType);
-		lua_pushnumber(L, reportReason);
+		lua::pushNumber(L, reportType);
+		lua::pushNumber(L, reportReason);
 
 		lua::pushString(L, comment);
 		lua::pushString(L, translation);
@@ -922,7 +922,7 @@ namespace events::player {
 
 		lua::pushString(L, message);
 		lua::pushPosition(L, position);
-		lua_pushnumber(L, category);
+		lua::pushNumber(L, category);
 
 		return scriptInterface.callFunction(4);
 	}
@@ -973,7 +973,7 @@ namespace events::player {
 		lua::pushUserdata(L, player);
 		lua::setMetatable(L, -1, "Player");
 
-		lua_pushnumber(L, direction);
+		lua::pushNumber(L, direction);
 
 		return scriptInterface.callFunction(2);
 	}
@@ -1101,8 +1101,8 @@ namespace events::player {
 			lua_pushnil(L);
 		}
 
-		lua_pushnumber(L, exp);
-		lua_pushnumber(L, rawExp);
+		lua::pushNumber(L, exp);
+		lua::pushNumber(L, rawExp);
 
 		if (lua::protectedCall(L, 4, 1) != 0) {
 			reportErrorFunc(L, lua::popString(L));
@@ -1134,7 +1134,7 @@ namespace events::player {
 		lua::pushUserdata(L, player);
 		lua::setMetatable(L, -1, "Player");
 
-		lua_pushnumber(L, exp);
+		lua::pushNumber(L, exp);
 
 		if (lua::protectedCall(L, 2, 1) != 0) {
 			reportErrorFunc(L, lua::popString(L));
@@ -1166,8 +1166,8 @@ namespace events::player {
 		lua::pushUserdata(L, player);
 		lua::setMetatable(L, -1, "Player");
 
-		lua_pushnumber(L, skill);
-		lua_pushnumber(L, tries);
+		lua::pushNumber(L, skill);
+		lua::pushNumber(L, tries);
 
 		if (lua::protectedCall(L, 3, 1) != 0) {
 			reportErrorFunc(L, lua::popString(L));
@@ -1228,7 +1228,7 @@ namespace events::player {
 		lua::pushUserdata(L, item);
 		lua::setItemMetatable(L, -1, item);
 
-		lua_pushnumber(L, slot);
+		lua::pushNumber(L, slot);
 		lua::pushBoolean(L, equip);
 
 		scriptInterface.callVoidFunction(4);
@@ -1254,7 +1254,7 @@ namespace events::player {
 		lua::pushUserdata(L, player);
 		lua::setMetatable(L, -1, "Player");
 
-		lua_pushnumber(L, recvByte);
+		lua::pushNumber(L, recvByte);
 
 		lua::pushUserdata(L, msg.release());
 		lua::setMetatable(L, -1, "NetworkMessage");

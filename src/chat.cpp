@@ -219,7 +219,7 @@ bool ChatChannel::executeOnSpeakEvent(const Player& player, SpeakClasses& type, 
 	lua::pushUserdata(L, &player);
 	lua::setMetatable(L, -1, "Player");
 
-	lua_pushnumber(L, type);
+	lua::pushNumber(L, type);
 	lua::pushString(L, message);
 
 	bool result = false;
