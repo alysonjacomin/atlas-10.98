@@ -34,8 +34,6 @@
 #include "teleport.h"
 #include "weapons.h"
 
-#include <ranges>
-
 extern Chat* g_chat;
 extern Game g_game;
 extern GlobalEvents* g_globalEvents;
@@ -270,9 +268,8 @@ void ScriptEnvironment::resetEnv() {
 	localMap.clear();
 	tempResults.clear();
 
-	auto pair = tempItems.equal_range(this);
-	auto it = pair.first;
-	while (it != pair.second) {
+	auto&& [it, end] = tempItems.equal_range(this);
+	while (it != end) {
 		Item* item = it->second;
 		if (item && !item->hasParent()) {
 			g_game.ReleaseItem(item);
@@ -310,9 +307,9 @@ uint32_t ScriptEnvironment::addThing(Thing* thing) {
 		return item->getUniqueId();
 	}
 
-	for (const auto& it : localMap) {
-		if (it.second == item) {
-			return it.first;
+	for (auto&& [uid, localItem] : localMap | std::views::as_const) {
+		if (localItem == item) {
+			return uid;
 		}
 	}
 
@@ -3721,8 +3718,8 @@ int LuaScriptInterface::luaAddEvent(lua_State* L) {
 			}
 
 			if (ConfigManager::getBoolean(ConfigManager::CONVERT_UNSAFE_SCRIPTS)) {
-				for (const auto& entry : indexes) {
-					switch (entry.second) {
+				for (auto&& [index, type] : indexes | std::views::as_const) {
+					switch (type) {
 						case LuaData_Item:
 						case LuaData_Container:
 						case LuaData_Teleport: {
@@ -3741,9 +3738,9 @@ int LuaScriptInterface::luaAddEvent(lua_State* L) {
 							break;
 					}
 					lua_replace(L, -2);
-					lua_pushvalue(L, entry.first);
+					lua_pushvalue(L, index);
 					lua_call(L, 1, 1);
-					lua_replace(L, entry.first);
+					lua_replace(L, index);
 				}
 			}
 		}
@@ -4325,8 +4322,8 @@ int LuaScriptInterface::luaGameGetPlayers(lua_State* L) {
 	lua_createtable(L, g_game.getPlayersOnline(), 0);
 
 	int index = 0;
-	for (const auto& playerEntry : g_game.getPlayers()) {
-		lua::pushUserdata(L, playerEntry.second);
+	for (auto&& player : g_game.getPlayers() | std::views::values | std::views::as_const) {
+		lua::pushUserdata(L, player);
 		lua::setMetatable(L, -1, "Player");
 		lua_rawseti(L, -2, ++index);
 	}
@@ -4338,8 +4335,8 @@ int LuaScriptInterface::luaGameGetNpcs(lua_State* L) {
 	lua_createtable(L, g_game.getNpcsOnline(), 0);
 
 	int index = 0;
-	for (const auto& npcEntry : g_game.getNpcs()) {
-		lua::pushUserdata(L, npcEntry.second);
+	for (auto&& npc : g_game.getNpcs() | std::views::values | std::views::as_const) {
+		lua::pushUserdata(L, npc);
 		lua::setMetatable(L, -1, "Npc");
 		lua_rawseti(L, -2, ++index);
 	}
@@ -4351,8 +4348,8 @@ int LuaScriptInterface::luaGameGetMonsters(lua_State* L) {
 	lua_createtable(L, g_game.getMonstersOnline(), 0);
 
 	int index = 0;
-	for (const auto& monsterEntry : g_game.getMonsters()) {
-		lua::pushUserdata(L, monsterEntry.second);
+	for (auto&& monster : g_game.getMonsters() | std::views::values | std::views::as_const) {
+		lua::pushUserdata(L, monster);
 		lua::setMetatable(L, -1, "Monster");
 		lua_rawseti(L, -2, ++index);
 	}
@@ -4413,8 +4410,8 @@ int LuaScriptInterface::luaGameGetCurrencyItems(lua_State* L) {
 	const auto& currencyItems = Item::items.currencyItems;
 	size_t size = currencyItems.size();
 	lua_createtable(L, size, 0);
-	for (const auto& it : currencyItems) {
-		const ItemType& itemType = Item::items[it.second];
+	for (auto&& [worth, type] : currencyItems | std::views::as_const) {
+		const ItemType& itemType = Item::items[type];
 		lua::pushUserdata(L, &itemType);
 		lua::setMetatable(L, -1, "ItemType");
 		lua_rawseti(L, -2, size--);
@@ -10138,16 +10135,16 @@ int LuaScriptInterface::luaPlayerSetGhostMode(lua_State* L) {
 	}
 
 	if (player->isInGhostMode()) {
-		for (const auto& it : g_game.getPlayers()) {
-			if (!it.second->isAccessPlayer()) {
-				it.second->notifyStatusChange(player, VIPSTATUS_OFFLINE);
+		for (auto&& onlinePlayer : g_game.getPlayers() | std::views::values | std::views::as_const) {
+			if (!onlinePlayer->isAccessPlayer()) {
+				onlinePlayer->notifyStatusChange(player, VIPSTATUS_OFFLINE);
 			}
 		}
 		IOLoginData::updateOnlineStatus(player->getGUID(), false);
 	} else {
-		for (const auto& it : g_game.getPlayers()) {
-			if (!it.second->isAccessPlayer()) {
-				it.second->notifyStatusChange(player, VIPSTATUS_ONLINE);
+		for (auto&& onlinePlayer : g_game.getPlayers() | std::views::values | std::views::as_const) {
+			if (!onlinePlayer->isAccessPlayer()) {
+				onlinePlayer->notifyStatusChange(player, VIPSTATUS_ONLINE);
 			}
 		}
 		IOLoginData::updateOnlineStatus(player->getGUID(), true);

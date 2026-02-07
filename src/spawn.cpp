@@ -237,8 +237,7 @@ void Spawn::startSpawnCheck() {
 }
 
 Spawn::~Spawn() {
-	for (const auto& it : spawnedMap) {
-		Monster* monster = it.second;
+	for (auto&& monster : spawnedMap | std::views::values | std::views::as_const) {
 		monster->setSpawn(nullptr);
 		monster->decrementReferenceCounter();
 	}
@@ -324,9 +323,7 @@ bool Spawn::spawnMonster(uint32_t spawnId, MonsterType* mType, const Position& p
 }
 
 void Spawn::startup() {
-	for (const auto& it : spawnMap) {
-		uint32_t spawnId = it.first;
-		const spawnBlock_t& sb = it.second;
+	for (auto&& [spawnId, sb] : spawnMap | std::views::as_const) {
 		spawnMonster(spawnId, sb, true);
 	}
 }
@@ -338,13 +335,10 @@ void Spawn::checkSpawn() {
 
 	uint32_t spawnCount = 0;
 
-	for (auto& it : spawnMap) {
-		uint32_t spawnId = it.first;
+	for (auto&& [spawnId, sb] : spawnMap) {
 		if (spawnedMap.find(spawnId) != spawnedMap.end()) {
 			continue;
 		}
-
-		spawnBlock_t& sb = it.second;
 		if (OTSYS_TIME() >= sb.lastSpawn + sb.interval) {
 			if (!spawnMonster(spawnId, sb)) {
 				sb.lastSpawn = OTSYS_TIME();

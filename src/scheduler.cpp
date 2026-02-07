@@ -51,8 +51,8 @@ void Scheduler::shutdown() {
 	setState(THREAD_STATE_TERMINATED);
 	boost::asio::post(io_context, [this]() {
 		// cancel all active timers
-		for (auto& it : eventIdTimerMap) {
-			it.second.cancel();
+		for (auto&& event : eventIdTimerMap | std::views::values) {
+			event.cancel();
 		}
 
 		io_context.stop();

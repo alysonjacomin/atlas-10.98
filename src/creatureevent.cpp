@@ -25,11 +25,9 @@ namespace {
 } // namespace
 
 void CreatureEvents::clear(bool fromLua) {
-	for (auto it = creatureEvents.begin(); it != creatureEvents.end();) {
-		if (fromLua == it->second.fromLua) {
-			it = creatureEvents.erase(it);
-		} else {
-			++it;
+	for (auto&& event : creatureEvents | std::views::values) {
+		if (fromLua == event.fromLua) {
+			event.clearEvent();
 		}
 	}
 
@@ -37,9 +35,11 @@ void CreatureEvents::clear(bool fromLua) {
 }
 
 void CreatureEvents::removeInvalidEvents() {
-	for (auto it = creatureEvents.begin(); it != creatureEvents.end(); ++it) {
+	for (auto it = creatureEvents.begin(); it != creatureEvents.end(); ) {
 		if (it->second.getScriptId() == 0) {
-			creatureEvents.erase(it->second.getName());
+			it = creatureEvents.erase(it);
+		} else {
+			++it;
 		}
 	}
 }
@@ -113,9 +113,9 @@ CreatureEvent* CreatureEvents::getEventByName(const std::string& name, bool forc
 
 bool CreatureEvents::playerLogin(Player* player) const {
 	//fire global event if is registered
-	for (const auto& it : creatureEvents) {
-		if (it.second.getEventType() == CREATURE_EVENT_LOGIN) {
-			if (!it.second.executeOnLogin(player)) {
+	for (auto&& event : creatureEvents | std::views::values | std::views::as_const) {
+		if (event.getEventType() == CREATURE_EVENT_LOGIN) {
+			if (!event.executeOnLogin(player)) {
 				return false;
 			}
 		}
@@ -125,9 +125,9 @@ bool CreatureEvents::playerLogin(Player* player) const {
 
 bool CreatureEvents::playerLogout(Player* player) const {
 	//fire global event if is registered
-	for (const auto& it : creatureEvents) {
-		if (it.second.getEventType() == CREATURE_EVENT_LOGOUT) {
-			if (!it.second.executeOnLogout(player)) {
+	for (auto&& event : creatureEvents | std::views::values | std::views::as_const) {
+		if (event.getEventType() == CREATURE_EVENT_LOGOUT) {
+			if (!event.executeOnLogout(player)) {
 				return false;
 			}
 		}
@@ -137,9 +137,9 @@ bool CreatureEvents::playerLogout(Player* player) const {
 
 void CreatureEvents::playerReconnect(Player* player) const {
 	// fire global event if is registered
-	for (const auto& it : creatureEvents) {
-		if (it.second.getEventType() == CREATURE_EVENT_RECONNECT) {
-			it.second.executeOnReconnect(player);
+	for (auto&& event : creatureEvents | std::views::values | std::views::as_const) {
+		if (event.getEventType() == CREATURE_EVENT_RECONNECT) {
+			event.executeOnReconnect(player);
 		}
 	}
 }
@@ -147,9 +147,9 @@ void CreatureEvents::playerReconnect(Player* player) const {
 bool CreatureEvents::playerAdvance(Player* player, skills_t skill, uint32_t oldLevel,
                                       uint32_t newLevel) {
 	// fire global event if is registered
-	for (auto& it : creatureEvents) {
-		if (it.second.getEventType() == CREATURE_EVENT_ADVANCE) {
-			if (!it.second.executeAdvance(player, skill, oldLevel, newLevel)) {
+	for (auto&& creatureEvent : creatureEvents | std::views::values) {
+		if (creatureEvent.getEventType() == CREATURE_EVENT_ADVANCE) {
+			if (!creatureEvent.executeAdvance(player, skill, oldLevel, newLevel)) {
 				return false;
 			}
 		}

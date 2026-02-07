@@ -67,7 +67,7 @@ bool IOMapSerialize::saveHouseItems() {
 	DBInsert stmt("INSERT INTO `tile_store` (`house_id`, `data`) VALUES ");
 
 	PropWriteStream stream;
-	for (const auto& house : g_game.map.houses.getHouses() | std::views::values) {
+	for (auto&& house : g_game.map.houses.getHouses() | std::views::values | std::views::as_const) {
 		//save house items
 		for (HouseTile* tile : house->getTiles()) {
 			saveTile(stream, tile);
@@ -284,7 +284,7 @@ bool IOMapSerialize::saveHouseInfo() {
 		return false;
 	}
 
-	for (const auto& house : g_game.map.houses.getHouses() | std::views::values) {
+	for (auto&& house : g_game.map.houses.getHouses() | std::views::values | std::views::as_const) {
 		DBResult_ptr result = db.storeQuery(fmt::format("SELECT `id` FROM `houses` WHERE `id` = {:d}", house->getId()));
 		if (result) {
 			db.executeQuery(fmt::format("UPDATE `houses` SET `owner` = {:d}, `paid` = {:d}, `warnings` = {:d}, `name` = {:s}, `town_id` = {:d}, `rent` = {:d}, `size` = {:d}, `beds` = {:d} WHERE `id` = {:d}", house->getOwner(), house->getPaidUntil(), house->getPayRentWarnings(), db.escapeString(house->getName()), house->getTownId(), house->getRent(), house->getTiles().size(), house->getBedCount(), house->getId()));
@@ -295,7 +295,7 @@ bool IOMapSerialize::saveHouseInfo() {
 
 	DBInsert stmt("INSERT INTO `house_lists` (`house_id` , `listid` , `list`) VALUES ");
 
-	for (const auto& house : g_game.map.houses.getHouses() | std::views::values) {
+	for (auto&& house : g_game.map.houses.getHouses() | std::views::values | std::views::as_const) {
 		std::string listText;
 		if (house->getAccessList(GUEST_LIST, listText) && !listText.empty()) {
 			if (!stmt.addRow(fmt::format("{:d}, {:d}, {:s}", house->getId(), std::to_underlying(GUEST_LIST), db.escapeString(listText)))) {

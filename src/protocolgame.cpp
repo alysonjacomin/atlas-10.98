@@ -1494,8 +1494,8 @@ void ProtocolGame::sendChannel(uint16_t channelId, const std::string& channelNam
 
 	if (channelUsers) {
 		msg.add<uint16_t>(channelUsers->size());
-		for (const auto& it : *channelUsers) {
-			msg.addString(it.second->getName());
+		for (auto&& user : *channelUsers | std::views::values | std::views::as_const) {
+			msg.addString(user->getName());
 		}
 	} else {
 		msg.add<uint16_t>(0x00);
@@ -1503,8 +1503,8 @@ void ProtocolGame::sendChannel(uint16_t channelId, const std::string& channelNam
 
 	if (invitedUsers) {
 		msg.add<uint16_t>(invitedUsers->size());
-		for (const auto& it : *invitedUsers) {
-			msg.addString(it.second->getName());
+		for (auto&& user : *invitedUsers | std::views::values | std::views::as_const) {
+			msg.addString(user->getName());
 		}
 	} else {
 		msg.add<uint16_t>(0x00);
@@ -2824,15 +2824,15 @@ void ProtocolGame::sendModalWindow(const ModalWindow& modalWindow) {
 	msg.addString(modalWindow.message);
 
 	msg.addByte(modalWindow.buttons.size());
-	for (const auto& it : modalWindow.buttons) {
-		msg.addString(it.first);
-		msg.addByte(it.second);
+	for (auto&& [text, action] : modalWindow.buttons | std::views::as_const) {
+		msg.addString(text);
+		msg.addByte(action);
 	}
 
 	msg.addByte(modalWindow.choices.size());
-	for (const auto& it : modalWindow.choices) {
-		msg.addString(it.first);
-		msg.addByte(it.second);
+	for (auto&& [text, action] : modalWindow.choices | std::views::as_const) {
+		msg.addString(text);
+		msg.addByte(action);
 	}
 
 	msg.addByte(modalWindow.defaultEscapeButton);

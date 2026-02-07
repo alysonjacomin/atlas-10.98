@@ -50,8 +50,8 @@ Player::~Player() {
 		}
 	}
 
-	for (const auto& it : depotLockerMap) {
-		it.second->removeInbox(inbox.get());
+	for (auto&& depotLocker : depotLockerMap | std::views::values | std::views::as_const) {
+		depotLocker->removeInbox(inbox.get());
 	}
 
 	storeInbox->setParent(nullptr);
@@ -594,9 +594,9 @@ Container* Player::getContainerByID(uint8_t cid) {
 }
 
 int8_t Player::getContainerID(const Container* container) const {
-	for (const auto& it : openContainers) {
-		if (it.second.container == container) {
-			return it.first;
+	for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
+		if (openContainer.container == container) {
+			return cid;
 		}
 	}
 	return -1;
@@ -875,8 +875,7 @@ void Player::sendAddContainerItem(const Container* container, const Item* item) 
 		return;
 	}
 
-	for (const auto& it : openContainers) {
-		const OpenContainer& openContainer = it.second;
+	for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
 		if (openContainer.container != container) {
 			continue;
 		}
@@ -896,7 +895,7 @@ void Player::sendAddContainerItem(const Container* container, const Item* item) 
 		}
 
 		if (item) {
-			client->sendAddContainerItem(it.first, slot, item);
+			client->sendAddContainerItem(cid, slot, item);
 		}
 	}
 }
@@ -906,8 +905,7 @@ void Player::sendUpdateContainerItem(const Container* container, uint16_t slot, 
 		return;
 	}
 
-	for (const auto& it : openContainers) {
-		const OpenContainer& openContainer = it.second;
+	for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
 		if (openContainer.container != container) {
 			continue;
 		}
@@ -921,7 +919,7 @@ void Player::sendUpdateContainerItem(const Container* container, uint16_t slot, 
 			continue;
 		}
 
-		client->sendUpdateContainerItem(it.first, slot, newItem);
+		client->sendUpdateContainerItem(cid, slot, newItem);
 	}
 }
 
@@ -930,8 +928,7 @@ void Player::sendRemoveContainerItem(const Container* container, uint16_t slot) 
 		return;
 	}
 
-	for (auto& it : openContainers) {
-		OpenContainer& openContainer = it.second;
+	for (auto&& [cid, openContainer] : openContainers) {
 		if (openContainer.container != container) {
 			continue;
 		}
@@ -939,10 +936,10 @@ void Player::sendRemoveContainerItem(const Container* container, uint16_t slot) 
 		uint16_t& firstIndex = openContainer.index;
 		if (firstIndex > 0 && firstIndex >= container->size() - 1) {
 			firstIndex -= container->capacity();
-			sendContainer(it.first, container, firstIndex);
+			sendContainer(cid, container, firstIndex);
 		}
 
-		client->sendRemoveContainerItem(it.first, std::max<uint16_t>(slot, firstIndex), container->getItemByIndex(container->capacity() + firstIndex));
+		client->sendRemoveContainerItem(cid, std::max<uint16_t>(slot, firstIndex), container->getItemByIndex(container->capacity() + firstIndex));
 	}
 }
 
@@ -1305,9 +1302,9 @@ void Player::onCloseContainer(const Container* container) {
 		return;
 	}
 
-	for (const auto& it : openContainers) {
-		if (it.second.container == container) {
-			client->sendCloseContainer(it.first);
+	for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
+		if (openContainer.container == container) {
+			client->sendCloseContainer(cid);
 		}
 	}
 }
@@ -1317,10 +1314,9 @@ void Player::onSendContainer(const Container* container) {
 		return;
 	}
 
-	for (const auto& it : openContainers) {
-		const OpenContainer& openContainer = it.second;
+	for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
 		if (openContainer.container == container) {
-			client->sendContainer(it.first, container, openContainer.index);
+			client->sendContainer(cid, container, openContainer.index);
 		}
 	}
 }
@@ -1900,10 +1896,9 @@ void Player::death(Creature* lastHitCreature) {
 		if (lastHitPlayer) {
 			uint32_t sumLevels = 0;
 			uint32_t inFightTicks = getNumber(ConfigManager::PZ_LOCKED);
-			for (const auto& it : damageMap) {
-				CountBlock_t cb = it.second;
+			for (auto&& [id, cb] : damageMap | std::views::as_const) {
 				if ((OTSYS_TIME() - cb.ticks) <= inFightTicks) {
-					Player* damageDealer = g_game.getPlayerByID(it.first);
+					Player* damageDealer = g_game.getPlayerByID(id);
 					if (damageDealer) {
 						sumLevels += damageDealer->getLevel();
 					}
@@ -2081,14 +2076,14 @@ void Player::addInFightTicks(bool pzlock /*= false*/) {
 void Player::removeList() {
 	g_game.removePlayer(this);
 
-	for (const auto& it : g_game.getPlayers()) {
-		it.second->notifyStatusChange(this, VIPSTATUS_OFFLINE);
+	for (auto&& onlinePlayer : g_game.getPlayers() | std::views::values | std::views::as_const) {
+		onlinePlayer->notifyStatusChange(this, VIPSTATUS_OFFLINE);
 	}
 }
 
 void Player::addList() {
-	for (const auto& it : g_game.getPlayers()) {
-		it.second->notifyStatusChange(this, VIPSTATUS_ONLINE);
+	for (auto&& onlinePlayer : g_game.getPlayers() | std::views::values | std::views::as_const) {
+		onlinePlayer->notifyStatusChange(this, VIPSTATUS_ONLINE);
 	}
 
 	g_game.addPlayer(this);
@@ -2171,11 +2166,11 @@ bool Player::editVIP(uint32_t vipGuid, const std::string& description, uint32_t 
 //close container and its child containers
 void Player::autoCloseContainers(const Container* container) {
 	std::vector<uint32_t> closeList;
-	for (const auto& it : openContainers) {
-		Container* tmpContainer = it.second.container;
+	for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
+		Container* tmpContainer = openContainer.container;
 		while (tmpContainer) {
 			if (tmpContainer->isRemoved() || tmpContainer == container) {
-				closeList.push_back(it.first);
+				closeList.push_back(cid);
 				break;
 			}
 
@@ -2915,8 +2910,8 @@ void Player::postAddNotification(Thing* thing, const Thing* oldParent, int32_t i
 			//check containers
 			std::vector<Container*> containers;
 
-			for (const auto& it : openContainers) {
-				Container* container = it.second.container;
+			for (auto&& [cid, openContainer] : openContainers | std::views::as_const) {
+				Container* container = openContainer.container;
 				if (!container->getPosition().isInRange(getPosition(), 1, 1, 0)) {
 					containers.push_back(container);
 				}
@@ -2966,8 +2961,8 @@ void Player::postRemoveNotification(Thing* thing, const Thing* newParent, int32_
 				if (const DepotChest* depotChest = dynamic_cast<const DepotChest*>(topContainer)) {
 					bool isOwner = false;
 
-					for (const auto& it : depotChests) {
-						if (it.second.get() == depotChest) {
+					for (auto&& [depotId, depotChestPtr] : depotChests | std::views::as_const) {
+						if (depotChestPtr.get() == depotChest) {
 							isOwner = true;
 							onSendContainer(container);
 						}
@@ -2999,8 +2994,8 @@ void Player::postRemoveNotification(Thing* thing, const Thing* newParent, int32_
 bool Player::updateSaleShopList(const Item* item) {
 	uint16_t itemId = item->getID();
 	bool isCurrency = false;
-	for (const auto& it : Item::items.currencyItems) {
-		if (it.second == itemId) {
+	for (auto&& [worth, type] : Item::items.currencyItems | std::views::as_const) {
+		if (type == itemId) {
 			isCurrency = true;
 			break;
 		}

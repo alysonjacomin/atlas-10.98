@@ -377,9 +377,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result) {
 		loadItems(itemMap, result);
 
 		for (ItemMap::const_reverse_iterator it = itemMap.rbegin(), end = itemMap.rend(); it != end; ++it) {
-			const std::pair<Item*, int32_t>& pair = it->second;
-			Item* item = pair.first;
-			int32_t pid = pair.second;
+			auto&& [item, pid] = it->second;
 			if (pid >= CONST_SLOT_FIRST && pid <= CONST_SLOT_LAST) {
 				player->internalAddThing(pid, item);
 			} else {
@@ -403,10 +401,8 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result) {
 		loadItems(itemMap, result);
 
 		for (ItemMap::const_reverse_iterator it = itemMap.rbegin(), end = itemMap.rend(); it != end; ++it) {
-			const std::pair<Item*, int32_t>& pair = it->second;
-			Item* item = pair.first;
+			auto&& [item, pid] = it->second;
 
-			int32_t pid = pair.second;
 			if (pid >= 0 && pid < 100) {
 				const auto& depotChest = player->getDepotChest(pid, true);
 				if (depotChest) {
@@ -433,9 +429,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result) {
 		loadItems(itemMap, result);
 
 		for (ItemMap::const_reverse_iterator it = itemMap.rbegin(), end = itemMap.rend(); it != end; ++it) {
-			const std::pair<Item*, int32_t>& pair = it->second;
-			Item* item = pair.first;
-			int32_t pid = pair.second;
+			auto&& [item, pid] = it->second;
 
 			if (pid >= 0 && pid < 100) {
 				player->getInbox()->internalAddThing(item);
@@ -461,9 +455,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result) {
 		loadItems(itemMap, result);
 
 		for (ItemMap::const_reverse_iterator it = itemMap.rbegin(), end = itemMap.rend(); it != end; ++it) {
-			const std::pair<Item*, int32_t>& pair = it->second;
-			Item* item = pair.first;
-			int32_t pid = pair.second;
+			auto&& [item, pid] = it->second;
 
 			if (pid >= 0 && pid < 100) {
 				player->getStoreInbox()->internalAddThing(item);
@@ -526,9 +518,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 	int32_t runningId = 100;
 
 	Database& db = Database::getInstance();
-	for (const auto& it : itemList) {
-		int32_t pid = it.first;
-		Item* item = it.second;
+	for (auto&& [pid, item] : itemList | std::views::as_const) {
 		++runningId;
 
 		propWriteStream.clear();
@@ -544,9 +534,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 	}
 
 	for (size_t i = 0; i < containers.size(); i++) {
-		const ContainerBlock& cb = containers[i];
-		Container* container = cb.first;
-		int32_t parentId = cb.second;
+		auto&& [container, parentId] = containers[i];
 
 		for (Item* item : container->getItemList()) {
 			++runningId;
@@ -731,9 +719,9 @@ bool IOLoginData::savePlayer(Player* player) {
 		DBInsert depotQuery("INSERT INTO `player_depotitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
 		itemList.clear();
 
-		for (const auto& it : player->depotChests) {
-			for (Item* item : it.second->getItemList()) {
-				itemList.emplace_back(it.first, item);
+		for (auto&& [depotId, depotChest] : player->depotChests | std::views::as_const) {
+			for (Item* item : depotChest->getItemList()) {
+				itemList.emplace_back(depotId, item);
 			}
 		}
 
@@ -797,8 +785,8 @@ bool IOLoginData::savePlayer(Player* player) {
 
 	DBInsert outfitQuery("INSERT INTO `player_outfits` (`player_id`, `outfit_id`, `addons`) VALUES ");
 
-	for (const auto& it : player->outfits) {
-		if (!outfitQuery.addRow(fmt::format("{:d}, {:d}, {:d}", player->getGUID(), it.first, it.second))) {
+	for (auto&& [outfitId, addons] : player->outfits | std::views::as_const) {
+		if (!outfitQuery.addRow(fmt::format("{:d}, {:d}, {:d}", player->getGUID(), outfitId, addons))) {
 			return false;
 		}
 	}

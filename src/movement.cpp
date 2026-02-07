@@ -95,7 +95,7 @@ bool MoveEvents::registerEvent(Event_ptr event, const pugi::xml_node& node) {
 	if ((attr = node.attribute("itemid"))) {
 		std::vector<int32_t> idList = vectorAtoi(explodeString(attr.as_string(), ";"));
 
-		for (const auto& id : idList) {
+		for (auto&& id : idList | std::views::as_const) {
 			if (moveEvent->getEventType() == MOVE_EVENT_EQUIP) {
 				ItemType& it = Item::items.getItemType(id);
 				it.wieldInfo = moveEvent->getWieldInfo();
@@ -135,7 +135,7 @@ bool MoveEvents::registerEvent(Event_ptr event, const pugi::xml_node& node) {
 	} else if ((attr = node.attribute("uniqueid"))) {
 		std::vector<int32_t> uidList = vectorAtoi(explodeString(attr.as_string(), ";"));
 
-		for (const auto& uid : uidList) {
+		for (auto&& uid : uidList | std::views::as_const) {
 			addEvent(std::move(*moveEvent), uid, uniqueIdMap);
 		}
 	} else if ((attr = node.attribute("fromuid"))) {
@@ -148,7 +148,7 @@ bool MoveEvents::registerEvent(Event_ptr event, const pugi::xml_node& node) {
 	} else if ((attr = node.attribute("actionid"))) {
 		std::vector<int32_t> aidList = vectorAtoi(explodeString(attr.as_string(), ";"));
 
-		for (const auto& aid : aidList) {
+		for (auto&& aid : aidList | std::views::as_const) {
 			addEvent(std::move(*moveEvent), aid, actionIdMap);
 		}
 	} else if ((attr = node.attribute("fromaid"))) {
