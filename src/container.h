@@ -5,7 +5,6 @@
 #define FS_CONTAINER_H
 
 #include "item.h"
-#include "tile.h"
 
 class Container;
 class DepotLocker;
@@ -134,7 +133,7 @@ class Container : public Item {
 		std::map<uint32_t, uint32_t>& getAllItemTypeCount(std::map<uint32_t, uint32_t>& countMap) const override final;
 		Thing* getThing(size_t index) const override final { return getItemByIndex(index); }
 
-		ItemVector getItems(bool recursive = false);
+		std::vector<Item*> getItems(bool recursive = false);
 
 		void postAddNotification(Thing* thing, const Thing* oldParent, int32_t index, ReceiverLink_t link = LINK_OWNER) override;
 		void postRemoveNotification(Thing* thing, const Thing* newParent, int32_t index, ReceiverLink_t link = LINK_OWNER) override;

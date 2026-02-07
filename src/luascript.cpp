@@ -29,7 +29,6 @@
 #include "protocolstatus.h"
 #include "scheduler.h"
 #include "script.h"
-#include "spectators.h"
 #include "spells.h"
 #include "storeinbox.h"
 #include "teleport.h"
@@ -4457,8 +4456,8 @@ int LuaScriptInterface::luaGameGetHouses(lua_State* L) {
 	lua_createtable(L, houses.size(), 0);
 
 	int index = 0;
-	for (auto houseEntry : houses) {
-		lua::pushUserdata(L, houseEntry.second);
+	for (const auto& house : houses | std::views::values) {
+		lua::pushUserdata(L, house.get());
 		lua::setMetatable(L, -1, "House");
 		lua_rawseti(L, -2, ++index);
 	}
@@ -4990,7 +4989,7 @@ int LuaScriptInterface::luaPositionSendMagicEffect(lua_State* L) {
 	if (lua_gettop(L) >= 3) {
 		Player* player = lua::getPlayer(L, 3);
 		if (player) {
-			spectators.emplace_back(player);
+			spectators.insert(player);
 		}
 	}
 
@@ -5018,7 +5017,7 @@ int LuaScriptInterface::luaPositionSendDistanceEffect(lua_State* L) {
 	if (lua_gettop(L) >= 4) {
 		Player* player = lua::getPlayer(L, 4);
 		if (player) {
-			spectators.emplace_back(player);
+			spectators.insert(player);
 		}
 	}
 
@@ -8116,7 +8115,7 @@ int LuaScriptInterface::luaCreatureSay(lua_State* L) {
 
 	SpectatorVec spectators;
 	if (target) {
-		spectators.emplace_back(target);
+		spectators.insert(target);
 	}
 
 	// Prevent infinity echo on event onHear

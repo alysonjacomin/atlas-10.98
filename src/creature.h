@@ -506,7 +506,7 @@ class Creature : virtual public Thing {
 		Creature* attackedCreature = nullptr;
 		Creature* master = nullptr;
 		Creature* followCreature = nullptr;
-		std::vector<Creature*> followers;
+		boost::container::flat_set<Creature*> followers;
 
 		uint64_t lastStep = 0;
 		int64_t lastPathUpdate = 0;

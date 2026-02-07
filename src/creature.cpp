@@ -12,7 +12,6 @@
 #include "monster.h"
 #include "party.h"
 #include "scheduler.h"
-#include "spectators.h"
 
 double Creature::speedA = 857.36;
 double Creature::speedB = 261.29;
@@ -746,7 +745,7 @@ bool Creature::isFollower(const Creature* creature) {
 
 void Creature::addFollower(Creature* creature) {
 	if (!isFollower(creature)) {
-		followers.push_back(creature);
+		followers.insert(creature);
 		creature->incrementReferenceCounter();
 	}
 }
@@ -762,8 +761,7 @@ void Creature::removeFollower(Creature* creature) {
 void Creature::removeFollowers() {
 	const Position& position = getPosition();
 
-	followers.erase(
-		std::remove_if(followers.begin(), followers.end(), [&position](Creature* creature) {
+	followers.erase(std::remove_if(followers.begin(), followers.end(), [&position](Creature* creature) {
 			const Position& followerPosition = creature->getPosition();
 			uint16_t distance = position.getDistanceX(followerPosition) + position.getDistanceY(followerPosition);
 

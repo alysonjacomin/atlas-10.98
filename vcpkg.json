@@ -4,6 +4,7 @@
 	"dependencies": [
 		{"name": "libiconv", "platform": "osx"},
 		"boost-asio",
+		"boost-container",
 		"boost-iostreams",
 		"boost-lockfree",
 		"boost-system",

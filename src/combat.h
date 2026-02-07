@@ -8,11 +8,11 @@
 #include "condition.h"
 #include "item.h"
 #include "tools.h"
+#include "map.h"
 
 class Creature;
 class MatrixArea;
 class Player;
-class SpectatorVec;
 class Tile;
 
 struct Position;

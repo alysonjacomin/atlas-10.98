@@ -89,9 +89,6 @@ enum AccessHouseLevel_t {
 	HOUSE_OWNER = 3,
 };
 
-using HouseTileList = std::list<HouseTile*>;
-using HouseBedItemList = std::list<BedItem*>;
-
 class HouseTransferItem final : public Item {
 	public:
 		static HouseTransferItem* createHouseTransferItem(House* house);
@@ -190,16 +187,16 @@ class House {
 		void resetTransferItem();
 		bool executeTransfer(HouseTransferItem* item, Player* newOwner);
 
-		const HouseTileList& getTiles() const {
+		const auto& getTiles() const {
 			return houseTiles;
 		}
 
-		const std::set<Door*>& getDoors() const {
+		const auto& getDoors() const {
 			return doorSet;
 		}
 
 		void addBed(BedItem* bed);
-		const HouseBedItemList& getBeds() const {
+		const auto& getBeds() const {
 			return bedsList;
 		}
 		uint32_t getBedCount() {
@@ -215,9 +212,9 @@ class House {
 
 		Container transfer_container{ITEM_LOCKER};
 
-		HouseTileList houseTiles;
-		std::set<Door*> doorSet;
-		HouseBedItemList bedsList;
+		boost::container::flat_set<HouseTile*> houseTiles;
+		boost::container::flat_set<Door*> doorSet;
+		boost::container::flat_set<BedItem*> bedsList;
 
 		std::string houseName;
 		std::string ownerName;
@@ -238,8 +235,6 @@ class House {
 		bool isLoaded = false;
 };
 
-using HouseMap = std::map<uint32_t, House*>;
-
 enum RentPeriod_t {
 	RENTPERIOD_DAILY,
 	RENTPERIOD_WEEKLY,
@@ -250,35 +245,8 @@ enum RentPeriod_t {
 
 class Houses {
 	public:
-		Houses() = default;
-		~Houses() {
-			for (const auto& it : houseMap) {
-				delete it.second;
-			}
-		}
-
-		// non-copyable
-		Houses(const Houses&) = delete;
-		Houses& operator=(const Houses&) = delete;
-
-		House* addHouse(uint32_t id) {
-			auto it = houseMap.find(id);
-			if (it != houseMap.end()) {
-				return it->second;
-			}
-
-			House* house = new House(id);
-			houseMap[id] = house;
-			return house;
-		}
-
-		House* getHouse(uint32_t houseId) {
-			auto it = houseMap.find(houseId);
-			if (it == houseMap.end()) {
-				return nullptr;
-			}
-			return it->second;
-		}
+		House* addHouse(uint32_t id);
+		House* getHouse(uint32_t houseId);
 
 		House* getHouseByPlayerId(uint32_t playerId);
 
@@ -286,12 +254,12 @@ class Houses {
 
 		void payHouses(RentPeriod_t rentPeriod) const;
 
-		const HouseMap& getHouses() const {
+		const auto& getHouses() const {
 			return houseMap;
 		}
 
 	private:
-		HouseMap houseMap;
+		std::map<uint32_t, std::unique_ptr<House>> houseMap;
 };
 
 #endif // FS_HOUSE_H

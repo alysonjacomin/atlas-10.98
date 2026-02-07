@@ -77,7 +77,7 @@ bool Party::leaveParty(Player* player, bool forceRemove /* = false */) {
 			if (memberList.size() == 1 && inviteList.empty()) {
 				missingLeader = true;
 			} else {
-				passPartyLeadership(memberList.front(), true);
+				passPartyLeadership(*memberList.begin(), true);
 			}
 		} else {
 			missingLeader = true;
@@ -180,7 +180,7 @@ bool Party::joinParty(Player& player) {
 	}
 
 	// add player to the party
-	memberList.push_back(&player);
+	memberList.insert(&player);
 	player.setParty(this);
 
 	broadcastPartyMessage(MESSAGE_INFO_DESCR, fmt::format("{:s} has joined the party.", player.getName()));
@@ -271,7 +271,7 @@ bool Party::invitePlayer(Player& player) {
 	}
 
 	// add player to invite lists
-	inviteList.push_back(&player);
+	inviteList.insert(&player);
 	player.addPartyInvitation(this);
 
 	// update leader-invitee party status

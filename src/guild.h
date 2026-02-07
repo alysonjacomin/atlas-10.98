@@ -34,7 +34,7 @@ class Guild {
 		void addMember(Player* player);
 		void removeMember(Player* player);
 
-		const std::list<Player*>& getMembersOnline() const {
+		const auto& getMembersOnline() const {
 			return membersOnline;
 		}
 		uint32_t getMemberCount() const {
@@ -60,7 +60,7 @@ class Guild {
 		}
 
 	private:
-		std::list<Player*> membersOnline;
+		boost::container::flat_set<Player*> membersOnline;
 		std::vector<GuildRank_ptr> ranks;
 		std::string name;
 		std::string motd;

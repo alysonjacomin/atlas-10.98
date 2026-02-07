@@ -27,7 +27,6 @@
 #include "scheduler.h"
 #include "script.h"
 #include "server.h"
-#include "spectators.h"
 #include "spells.h"
 #include "storeinbox.h"
 #include "talkaction.h"
@@ -4367,7 +4366,7 @@ void Game::addDistanceEffect(const Position& fromPos, const Position& toPos, uin
 	SpectatorVec spectators, toPosSpectators;
 	map.getSpectators(spectators, fromPos, true, true);
 	map.getSpectators(toPosSpectators, toPos, true, true);
-	spectators.addSpectators(toPosSpectators);
+	spectators.insert(toPosSpectators.begin(), toPosSpectators.end());
 
 	addDistanceEffect(spectators, fromPos, toPos, effect);
 }

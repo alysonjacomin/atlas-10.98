@@ -13,9 +13,6 @@ class Item;
 class Spawn;
 class Tile;
 
-using CreatureHashSet = std::unordered_set<Creature*>;
-using CreatureList = std::list<Creature*>;
-
 enum TargetSearchType_t {
 	TARGETSEARCH_DEFAULT,
 	TARGETSEARCH_RANDOM,
@@ -145,12 +142,8 @@ class Monster final : public Creature {
 		bool searchTarget(TargetSearchType_t searchType = TARGETSEARCH_DEFAULT);
 		bool selectTarget(Creature* creature);
 
-		const CreatureList& getTargetList() const {
-			return targetList;
-		}
-		const CreatureHashSet& getFriendList() const {
-			return friendList;
-		}
+		const auto& getTargetList() const { return targetList; }
+		const auto& getFriendList() const { return friendList; }
 
 		bool isTarget(const Creature* creature) const;
 		bool isFleeing() const {
@@ -173,8 +166,8 @@ class Monster final : public Creature {
 		using Creature::onWalk;
 
 	private:
-		CreatureHashSet friendList;
-		CreatureList targetList;
+		boost::container::flat_set<Creature*> friendList;
+		std::deque<Creature*> targetList;
 
 		std::string name;
 		std::string nameDescription;

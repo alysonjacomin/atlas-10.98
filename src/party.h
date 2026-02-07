@@ -9,8 +9,6 @@
 class Creature;
 class Player;
 
-using PlayerVector = std::vector<Player*>;
-
 static constexpr int32_t EXPERIENCE_SHARE_RANGE = 30;
 static constexpr int32_t EXPERIENCE_SHARE_FLOORS = 1;
 
@@ -29,12 +27,8 @@ class Party {
 		Player* getLeader() const {
 			return leader;
 		}
-		PlayerVector& getMembers() {
-			return memberList;
-		}
-		const PlayerVector& getInvitees() const {
-			return inviteList;
-		}
+		const auto& getMembers() const { return memberList; }
+		const auto& getInvitees() const { return inviteList; }
 		size_t getMemberCount() const {
 			return memberList.size();
 		}
@@ -79,8 +73,8 @@ class Party {
 
 		std::map<uint32_t, int64_t> ticksMap;
 
-		PlayerVector memberList;
-		PlayerVector inviteList;
+		boost::container::flat_set<Player*> memberList;
+		boost::container::flat_set<Player*> inviteList;
 
 		Player* leader;
 
